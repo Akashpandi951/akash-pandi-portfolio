@@ -578,6 +578,94 @@
       }
     }
 
+    /* =========================================================================
+       THE CONVERGENCE NEXUS (Center Shape Expansion & Synaptic Conduit System)
+       "As you scroll, center shape becomes bigger and connects to all other smaller shapes"
+       ========================================================================= */
+    .nexus-track {
+      position: relative;
+      height: 220vh;
+    }
+    .nexus-sticky {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 15;
+    }
+    .nexus-stage {
+      position: relative;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+    }
+    .nexus-center-core {
+      background: linear-gradient(165deg, rgba(25, 20, 36, 0.98), rgba(12, 10, 18, 0.99)) !important;
+      box-shadow: 0 0 35px rgba(255, 23, 68, 0.35), 0 25px 60px -10px rgba(0, 0, 0, 0.95);
+      transition: box-shadow 0.35s ease, border-color 0.35s ease;
+    }
+    .nexus-center-core.nexus-expanded {
+      box-shadow: 0 0 55px rgba(255, 23, 68, 0.65), 0 0 90px rgba(139, 92, 246, 0.4), 0 30px 80px -10px rgba(0, 0, 0, 0.98);
+      border-color: #FF1744 !important;
+    }
+    .nexus-pulse-ring {
+      animation: nexusPulse 3s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+    }
+    .nexus-pulse-ring-outer {
+      animation: nexusPulse 3s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+      animation-delay: 0.8s;
+    }
+    @keyframes nexusPulse {
+      0% { transform: scale(0.96); opacity: 0.8; }
+      50% { transform: scale(1.06); opacity: 0.2; }
+      100% { transform: scale(0.96); opacity: 0.8; }
+    }
+    .nexus-conduit {
+      stroke-dasharray: 260;
+      stroke-dashoffset: 260;
+      transition: stroke-dashoffset 0.12s linear, stroke-width 0.25s ease, opacity 0.25s ease;
+      opacity: 0.18;
+    }
+    .nexus-conduit.connected {
+      opacity: 0.95;
+      stroke-dashoffset: 0;
+    }
+    .nexus-satellite {
+      opacity: 0.45;
+      transform-origin: center center;
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
+      background: linear-gradient(165deg, rgba(20, 18, 29, 0.96), rgba(9, 9, 15, 0.98)) !important;
+    }
+    .nexus-satellite.connected {
+      opacity: 1;
+      border-color: rgba(56, 189, 248, 0.5) !important;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.25), 0 16px 36px -10px rgba(0, 0, 0, 0.85);
+    }
+    .nexus-satellite.active-focus {
+      border-color: #FF1744 !important;
+      box-shadow: 0 0 25px rgba(255, 23, 68, 0.45), 0 20px 40px -10px rgba(0, 0, 0, 0.9);
+      transform: translate(-50%, -50%) scale(1.1) !important;
+    }
+    .nexus-scrub-btn.active {
+      background: rgba(255, 23, 68, 0.22) !important;
+      border-color: rgba(255, 23, 68, 0.6) !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 0 12px rgba(255, 23, 68, 0.3);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .nexus-track { height: auto !important; }
+      .nexus-sticky { position: relative !important; height: auto !important; padding: 4rem 1rem !important; }
+      .nexus-stage { height: auto !important; display: grid !important; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important; gap: 1rem !important; }
+      .nexus-center-core { position: relative !important; left: auto !important; top: auto !important; transform: none !important; width: 100% !important; height: auto !important; }
+      .nexus-satellite { position: relative !important; left: auto !important; top: auto !important; transform: none !important; opacity: 1 !important; }
+      #nexus-svg-conduits { display: none !important; }
+    }
+
     /* Apple-Style Frosted Floating Navbar */
     .nav-glass {
       background: rgba(10, 10, 16, 0.72);
@@ -1998,7 +2086,192 @@
       </div>
     </section>
 
-    <!-- 6. TECHNICAL SKILLS (Apple Segmented Switcher) & MY TECH STACK -->
+    <!-- 6. THE CONVERGENCE NEXUS (Scroll-Driven Center Shape Expansion & Synaptic Network Assembly) -->
+    <section id="nexus" class="nexus-track relative">
+      <div class="nexus-sticky sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between py-6 sm:py-8 px-4 sm:px-6 pointer-events-none">
+
+        <!-- Header Info HUD -->
+        <div class="relative z-20 max-w-4xl mx-auto text-center pointer-events-auto">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-crimson/10 border border-crimson/35 text-[11px] font-bold tracking-[0.2em] uppercase text-crimson mb-2 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-crimson animate-ping"></span>
+            <span>Neural Convergence Engine</span>
+            <span class="text-white/20">•</span>
+            <span id="nexus-status-badge" class="text-white font-mono">DORMANT CORE (0/8 LINKED)</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white uppercase tracking-tight">
+            INTELLIGENCE CONVERGENCE NEXUS<span class="text-crimson">.</span>
+          </h2>
+          <p class="text-xs sm:text-sm text-muted mt-2 max-w-xl mx-auto leading-relaxed">
+            Scroll down to watch the central data intelligence core expand in magnitude and shoot glowing synaptic conduits to all satellite technical domains.
+          </p>
+
+          <!-- Interactive Quick Scrub Controls -->
+          <div class="mt-3 flex items-center justify-center gap-2 text-[10px] font-mono">
+            <button type="button" class="nexus-scrub-btn active px-3 py-1 rounded-full bg-crimson/20 border border-crimson/50 text-white transition-all cursor-pointer" data-step="0">
+              01 Compact Core
+            </button>
+            <button type="button" class="nexus-scrub-btn px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-muted hover:text-white transition-all cursor-pointer" data-step="1">
+              02 Expanding Synapse
+            </button>
+            <button type="button" class="nexus-scrub-btn px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-muted hover:text-white transition-all cursor-pointer" data-step="2">
+              03 Fully Connected (8/8)
+            </button>
+          </div>
+        </div>
+
+        <!-- The Interactive Network Stage -->
+        <div class="nexus-stage relative my-auto w-full max-w-4xl mx-auto flex items-center justify-center pointer-events-auto" style="height: 520px;">
+
+          <!-- SVG Conduits Layer (Connecting Center Shape to all 8 Satellites) -->
+          <svg id="nexus-svg-conduits" class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 800 520" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="nexus-line-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF1744" stop-opacity="0.95"></stop>
+                <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.85"></stop>
+              </linearGradient>
+              <filter id="nexus-glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur"></feGaussianBlur>
+                <feMerge>
+                  <feMergeNode in="blur"></feMergeNode>
+                  <feMergeNode in="SourceGraphic"></feMergeNode>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- 8 Conduits lines from (400, 260) to each satellite -->
+            <path id="nexus-line-0" class="nexus-conduit" d="M 400 260 L 400 60" stroke="url(#nexus-line-grad)" stroke-width="2.5" stroke-linecap="round" filter="url(#nexus-glow)"></path>
+            <path id="nexus-line-1" class="nexus-conduit" d="M 400 260 L 565 95" stroke="url(#nexus-line-grad)" stroke-width="2.5" stroke-linecap="round" filter="url(#nexus-glow)"></path>
+            <path id="nexus-line-2" class="nexus-conduit" d="M 400 260 L 630 260" stroke="url(#nexus-line-grad)" stroke-width="2.5" stroke-linecap="round" filter="url(#nexus-glow)"></path>
+            <path id="nexus-line-3" class="nexus-conduit" d="M 400 260 L 565 425" stroke="url(#nexus-line-grad)" stroke-width="2.5" stroke-linecap="round" filter="url(#nexus-glow)"></path>
+            <path id="nexus-line-4" class="nexus-conduit" d="M 400 260 L 400 460" stroke="url(#nexus-line-grad)" stroke-width="2.5" stroke-linecap="round" filter="url(#nexus-glow)"></path>
+            <path id="nexus-line-5" class="nexus-conduit" d="M 400 260 L 235 425" stroke="url(#nexus-line-grad)" stroke-width="2.5" stroke-linecap="round" filter="url(#nexus-glow)"></path>
+            <path id="nexus-line-6" class="nexus-conduit" d="M 400 260 L 170 260" stroke="url(#nexus-line-grad)" stroke-width="2.5" stroke-linecap="round" filter="url(#nexus-glow)"></path>
+            <path id="nexus-line-7" class="nexus-conduit" d="M 400 260 L 235 95" stroke="url(#nexus-line-grad)" stroke-width="2.5" stroke-linecap="round" filter="url(#nexus-glow)"></path>
+          </svg>
+
+          <!-- 8 Surrounding Smaller Satellite Shapes (Orbiting around center) -->
+          <!-- 0: SQL Analytics (Top) -->
+          <div class="nexus-satellite absolute rounded-2xl bento-card p-2.5 sm:p-3 border border-white/10 flex items-center gap-2 cursor-pointer transition-all duration-300" style="left: 50%; top: 60px; transform: translate(-50%, -50%);" data-index="0" data-name="SQL &amp; Relational DBs" data-metric="Complex Queries &amp; Joins">
+            <div class="w-7 h-7 rounded-xl bg-crimson/20 border border-crimson/40 flex items-center justify-center text-crimson shrink-0">
+              <i data-lucide="database" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="text-left pr-1.5">
+              <div class="text-[10px] font-bold text-white uppercase font-display leading-tight">SQL Analytics</div>
+              <div class="text-[8px] font-mono text-muted uppercase">Queries &amp; Aggregates</div>
+            </div>
+          </div>
+
+          <!-- 1: AI Prompting (Top-Right) -->
+          <div class="nexus-satellite absolute rounded-2xl bento-card p-2.5 sm:p-3 border border-white/10 flex items-center gap-2 cursor-pointer transition-all duration-300" style="left: calc(50% + 165px); top: 95px; transform: translate(-50%, -50%);" data-index="1" data-name="Prompt Engineering" data-metric="Structured System Prompts">
+            <div class="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 shrink-0">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="text-left pr-1.5">
+              <div class="text-[10px] font-bold text-white uppercase font-display leading-tight">AI Prompting</div>
+              <div class="text-[8px] font-mono text-muted uppercase">Structured Prompts</div>
+            </div>
+          </div>
+
+          <!-- 2: MS Excel (Right) -->
+          <div class="nexus-satellite absolute rounded-2xl bento-card p-2.5 sm:p-3 border border-white/10 flex items-center gap-2 cursor-pointer transition-all duration-300" style="left: calc(50% + 230px); top: 260px; transform: translate(-50%, -50%);" data-index="2" data-name="Excel Modeling" data-metric="Automated Dashboards">
+            <div class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+              <i data-lucide="table-2" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="text-left pr-1.5">
+              <div class="text-[10px] font-bold text-white uppercase font-display leading-tight">MS Excel</div>
+              <div class="text-[8px] font-mono text-muted uppercase">VLOOKUP &amp; Pivots</div>
+            </div>
+          </div>
+
+          <!-- 3: BI Insights (Bottom-Right) -->
+          <div class="nexus-satellite absolute rounded-2xl bento-card p-2.5 sm:p-3 border border-white/10 flex items-center gap-2 cursor-pointer transition-all duration-300" style="left: calc(50% + 165px); top: 425px; transform: translate(-50%, -50%);" data-index="3" data-name="BI Insights" data-metric="KPI Reporting">
+            <div class="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400 shrink-0">
+              <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="text-left pr-1.5">
+              <div class="text-[10px] font-bold text-white uppercase font-display leading-tight">BI Reporting</div>
+              <div class="text-[8px] font-mono text-muted uppercase">Visual Dashboards</div>
+            </div>
+          </div>
+
+          <!-- 4: MCP Protocol (Bottom) -->
+          <div class="nexus-satellite absolute rounded-2xl bento-card p-2.5 sm:p-3 border border-white/10 flex items-center gap-2 cursor-pointer transition-all duration-300" style="left: 50%; top: 460px; transform: translate(-50%, -50%);" data-index="4" data-name="Enterprise MCP" data-metric="8 Production Tools">
+            <div class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+              <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="text-left pr-1.5">
+              <div class="text-[10px] font-bold text-white uppercase font-display leading-tight">MCP Protocol</div>
+              <div class="text-[8px] font-mono text-muted uppercase">AI Agent Tooling</div>
+            </div>
+          </div>
+
+          <!-- 5: BullMQ Queues (Bottom-Left) -->
+          <div class="nexus-satellite absolute rounded-2xl bento-card p-2.5 sm:p-3 border border-white/10 flex items-center gap-2 cursor-pointer transition-all duration-300" style="left: calc(50% - 165px); top: 425px; transform: translate(-50%, -50%);" data-index="5" data-name="Queue Concurrency" data-metric="5 Parallel Workers">
+            <div class="w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
+              <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="text-left pr-1.5">
+              <div class="text-[10px] font-bold text-white uppercase font-display leading-tight">Async Queues</div>
+              <div class="text-[8px] font-mono text-muted uppercase">Redis &amp; BullMQ</div>
+            </div>
+          </div>
+
+          <!-- 6: Web Applications (Left) -->
+          <div class="nexus-satellite absolute rounded-2xl bento-card p-2.5 sm:p-3 border border-white/10 flex items-center gap-2 cursor-pointer transition-all duration-300" style="left: calc(50% - 230px); top: 260px; transform: translate(-50%, -50%);" data-index="6" data-name="Web Apps" data-metric="Tailwind &amp; TypeScript">
+            <div class="w-7 h-7 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shrink-0">
+              <i data-lucide="code" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="text-left pr-1.5">
+              <div class="text-[10px] font-bold text-white uppercase font-display leading-tight">Web Apps</div>
+              <div class="text-[8px] font-mono text-muted uppercase">Responsive UI</div>
+            </div>
+          </div>
+
+          <!-- 7: Data Quality (Top-Left) -->
+          <div class="nexus-satellite absolute rounded-2xl bento-card p-2.5 sm:p-3 border border-white/10 flex items-center gap-2 cursor-pointer transition-all duration-300" style="left: calc(50% - 165px); top: 95px; transform: translate(-50%, -50%);" data-index="7" data-name="Data Quality" data-metric="99.8% Integrity">
+            <div class="w-7 h-7 rounded-lg bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 shrink-0">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="text-left pr-1.5">
+              <div class="text-[10px] font-bold text-white uppercase font-display leading-tight">Data Quality</div>
+              <div class="text-[8px] font-mono text-muted uppercase">Cleanse &amp; Transform</div>
+            </div>
+          </div>
+
+          <!-- THE CENTRAL EXPANDING SHAPE (Core Intelligence Nucleus) -->
+          <div id="nexus-center-shape" class="nexus-center-core absolute rounded-3xl bento-card p-4 sm:p-5 text-center border-2 border-crimson shadow-2xl cursor-pointer will-change-transform z-30 flex flex-col items-center justify-center" style="left: 50%; top: 260px; transform: translate(-50%, -50%) scale(0.9); width: 170px; height: 170px;">
+            <!-- Outer Concentric Pulsing Energy Rings -->
+            <div class="nexus-pulse-ring absolute inset-[-14px] rounded-3xl border border-crimson/40 pointer-events-none"></div>
+            <div class="nexus-pulse-ring-outer absolute inset-[-28px] rounded-3xl border border-crimson/20 pointer-events-none"></div>
+
+            <!-- Central Icon & Badge -->
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-crimson to-purple-600 border border-white/20 flex items-center justify-center text-white mb-2 shadow-xl">
+              <i data-lucide="atom" class="w-6 h-6 animate-spin-slow"></i>
+            </div>
+            <div class="text-[9px] font-mono uppercase tracking-[0.2em] text-crimson font-bold">Intelligence Core</div>
+            <div id="nexus-core-title" class="font-display text-xs font-bold text-white uppercase tracking-tight mt-0.5">Akash Engine</div>
+            <div id="nexus-counter-badge" class="mt-2 px-2.5 py-0.5 rounded-full bg-white/[0.08] border border-white/15 text-[9px] font-mono text-emerald-400 font-bold">
+              0 / 8 Connected
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer Progress HUD -->
+        <div class="relative z-20 max-w-xl mx-auto w-full text-center pointer-events-auto">
+          <div class="flex items-center justify-between text-[10px] font-mono text-muted mb-1.5">
+            <span id="nexus-hud-label">Center Core Compact</span>
+            <span id="nexus-pct-label">0% Expansion</span>
+          </div>
+          <div class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+            <div id="nexus-progress-bar" class="h-full bg-gradient-to-r from-crimson via-purple-500 to-sky-400 rounded-full transition-all duration-150" style="width: 0%;"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 7. TECHNICAL SKILLS (Apple Segmented Switcher) & MY TECH STACK -->
     <section id="skills" class="py-20 sm:py-28 px-4 sm:px-6">
       <div class="max-w-6xl mx-auto">
         <div class="reveal text-center mb-10">
@@ -2466,6 +2739,10 @@
         <button type="button" class="cmd-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm text-white hover:bg-crimson/15 transition-colors" data-action="scroll" data-target="#education">
           <span class="flex items-center gap-2.5"><i data-lucide="graduation-cap" class="w-4 h-4 text-crimson"></i>Education Timeline</span>
           <span class="text-[11px] text-muted">Section</span>
+        </button>
+        <button type="button" class="cmd-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm text-white hover:bg-crimson/15 transition-colors" data-action="scroll" data-target="#nexus">
+          <span class="flex items-center gap-2.5"><i data-lucide="atom" class="w-4 h-4 text-crimson"></i>Convergence Nexus (Neural Skill Graph)</span>
+          <span class="text-[11px] text-muted">Neural Core</span>
         </button>
         <button type="button" class="cmd-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm text-white hover:bg-crimson/15 transition-colors" data-action="scroll" data-target="#skills">
           <span class="flex items-center gap-2.5"><i data-lucide="cpu" class="w-4 h-4 text-crimson"></i>Technical Skills &amp; Tech Stack</span>
@@ -3118,6 +3395,138 @@
         });
       });
 
+      // 5c. The Convergence Nexus (Center Shape Expansion & Synaptic Connection Engine)
+      const nexusTrack = document.getElementById('nexus');
+      const nexusCenterShape = document.getElementById('nexus-center-shape');
+      const nexusCoreTitle = document.getElementById('nexus-core-title');
+      const nexusStatusBadge = document.getElementById('nexus-status-badge');
+      const nexusHudLabel = document.getElementById('nexus-hud-label');
+      const nexusPctLabel = document.getElementById('nexus-pct-label');
+      const nexusProgressBar = document.getElementById('nexus-progress-bar');
+      const nexusCounterBadge = document.getElementById('nexus-counter-badge');
+      const nexusConduits = document.querySelectorAll('.nexus-conduit');
+      const nexusSatellites = document.querySelectorAll('.nexus-satellite');
+      const nexusScrubBtns = document.querySelectorAll('.nexus-scrub-btn');
+
+      function updateNexusConvergence(p) {
+        if (!nexusTrack) return;
+        const progress = Math.max(0, Math.min(1, p));
+        const isMobile = window.innerWidth < 640;
+        const isTablet = window.innerWidth >= 640 && window.innerWidth < 1024;
+
+        // Center shape expands from 0.88 to 1.62 on desktop
+        const minScale = isMobile ? 0.80 : 0.88;
+        const maxScale = isMobile ? 1.25 : (isTablet ? 1.42 : 1.60);
+
+        // Smooth cubic expansion curve
+        const expandCurve = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        const currentScale = minScale + (maxScale - minScale) * expandCurve;
+
+        if (nexusCenterShape) {
+          nexusCenterShape.style.transform = `translate(-50%, -50%) scale(${currentScale.toFixed(3)})`;
+          nexusCenterShape.classList.toggle('nexus-expanded', progress > 0.42);
+        }
+
+        // Progress HUD update
+        if (nexusProgressBar) nexusProgressBar.style.width = (progress * 100).toFixed(1) + '%';
+        if (nexusPctLabel) nexusPctLabel.textContent = Math.round(progress * 100) + '% Expansion';
+
+        // Connect Conduits to all 8 Satellites
+        let connectedCount = 0;
+        nexusConduits.forEach(function (conduit, idx) {
+          const start = 0.08 + (idx * 0.075);
+          const end = start + 0.15;
+          const lineP = Math.max(0, Math.min(1, (progress - start) / (end - start)));
+          const easeLine = lineP < 0.5 ? 2 * lineP * lineP : 1 - Math.pow(-2 * lineP + 2, 2) / 2;
+
+          conduit.style.strokeDashoffset = (260 * (1 - easeLine)).toFixed(1);
+          conduit.style.opacity = (0.18 + easeLine * 0.80).toFixed(2);
+
+          const isLineDone = lineP >= 0.92;
+          conduit.classList.toggle('connected', isLineDone);
+
+          const sat = nexusSatellites[idx];
+          if (sat) {
+            sat.classList.toggle('connected', isLineDone);
+            const satScale = 0.95 + 0.08 * easeLine;
+            sat.style.opacity = (0.42 + 0.58 * easeLine).toFixed(2);
+            if (!sat.classList.contains('active-focus')) {
+              sat.style.transform = `translate(-50%, -50%) scale(${satScale.toFixed(3)})`;
+            }
+          }
+
+          if (isLineDone) connectedCount++;
+        });
+
+        // Update counter & status badge
+        if (nexusCounterBadge) {
+          nexusCounterBadge.textContent = `${connectedCount} / 8 Connected`;
+          nexusCounterBadge.className = 'mt-2 px-2.5 py-0.5 rounded-full border text-[9px] font-mono font-bold transition-colors ' +
+            (connectedCount === 8 ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 shadow-sm' :
+             connectedCount > 0 ? 'bg-crimson/20 border-crimson/40 text-white' :
+             'bg-white/[0.08] border-white/15 text-muted');
+        }
+
+        let currentStep = 0;
+        if (progress < 0.25) {
+          currentStep = 0;
+          if (nexusStatusBadge) nexusStatusBadge.textContent = `DORMANT CORE (${connectedCount}/8 LINKED)`;
+          if (nexusHudLabel) nexusHudLabel.textContent = 'Center Core Compact';
+        } else if (progress < 0.75) {
+          currentStep = 1;
+          if (nexusStatusBadge) nexusStatusBadge.textContent = `SYNAPSE EXPANDING (${connectedCount}/8 LINKED)`;
+          if (nexusHudLabel) nexusHudLabel.textContent = 'Center Core Expanding & Connecting';
+        } else {
+          currentStep = 2;
+          if (nexusStatusBadge) nexusStatusBadge.textContent = `ALL 8 NODES SYNAPSED // FULLY INTEGRATED`;
+          if (nexusHudLabel) nexusHudLabel.textContent = 'Network Synchronized (8/8 Connected)';
+        }
+
+        nexusScrubBtns.forEach(function (btn) {
+          btn.classList.toggle('active', parseInt(btn.getAttribute('data-step'), 10) === currentStep);
+        });
+      }
+
+      // Interactive hover & click on satellite nodes to spotlight
+      nexusSatellites.forEach(function (sat) {
+        sat.addEventListener('mouseenter', function () {
+          nexusSatellites.forEach(s => s.classList.remove('active-focus'));
+          sat.classList.add('active-focus');
+          const name = sat.getAttribute('data-name');
+          if (nexusCoreTitle && name) {
+            nexusCoreTitle.textContent = name;
+          }
+        });
+        sat.addEventListener('mouseleave', function () {
+          sat.classList.remove('active-focus');
+          if (nexusCoreTitle) {
+            nexusCoreTitle.textContent = 'Akash Engine';
+          }
+        });
+        sat.addEventListener('click', function () {
+          const name = sat.getAttribute('data-name');
+          const metric = sat.getAttribute('data-metric');
+          showToast(`${name}: ${metric}`, false);
+        });
+      });
+
+      // Quick scrub button listeners
+      nexusScrubBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (!nexusTrack) return;
+          const step = parseInt(btn.getAttribute('data-step'), 10);
+          const trackTop = nexusTrack.getBoundingClientRect().top + window.scrollY;
+          const totalDist = nexusTrack.offsetHeight - window.innerHeight;
+          let targetProgress = 0.04;
+          if (step === 1) targetProgress = 0.50;
+          if (step === 2) targetProgress = 0.95;
+          window.scrollTo({
+            top: trackTop + (totalDist * targetProgress),
+            behavior: 'smooth'
+          });
+        });
+      });
+
       function onScrollEffects() {
         const scrollTop = window.scrollY;
         const docHeight = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -3203,6 +3612,21 @@
             const scrolledDist = -trackRect.top;
             const progress = Math.max(0, Math.min(1, scrolledDist / totalDist));
             updateExplodedAssembly(progress);
+          }
+        }
+
+        // -----------------------------------------------------------------
+        // The Convergence Nexus (Center Shape Expands & Connects to Satellites)
+        // As user scrolls, center shape grows bigger and connects to smaller shapes
+        // -----------------------------------------------------------------
+        if (nexusTrack) {
+          const trackRect = nexusTrack.getBoundingClientRect();
+          const vh = window.innerHeight;
+          const totalDist = trackRect.height - vh;
+          if (totalDist > 0) {
+            const scrolledDist = -trackRect.top;
+            const progress = Math.max(0, Math.min(1, scrolledDist / totalDist));
+            updateNexusConvergence(progress);
           }
         }
       }
