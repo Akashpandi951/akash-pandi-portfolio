@@ -10,6 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.startServer = startServer;
 const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const config_1 = require("./config");
@@ -96,17 +97,48 @@ app.get('/api/health', async (_req, res) => {
         uptimeSeconds: Math.floor(process.uptime())
     });
 });
-// Explicit Admin Route
-app.get('/admin', (_req, res) => {
-    res.sendFile(path_1.default.join(__dirname, '..', 'admin.html'));
-});
-// 5. Static File Hosting (Serves index.html, admin.html, assets)
-app.use(express_1.default.static(path_1.default.join(__dirname, '..'), {
+// 5. Static File & Asset Hosting with Multi-Path Resilient Resolution
+const staticOptions = {
     extensions: ['html'],
     maxAge: config_1.config.env === 'production' ? '1d' : 0
-}));
+};
+// Explicit static routes for /assets
+app.use('/assets', express_1.default.static(path_1.default.join(process.cwd(), 'assets'), staticOptions));
+app.use('/assets', express_1.default.static(path_1.default.join(__dirname, '..', 'assets'), staticOptions));
+app.use('/assets', express_1.default.static(path_1.default.join(__dirname, 'assets'), staticOptions));
+app.use('/assets', express_1.default.static(path_1.default.join(process.cwd(), 'public', 'assets'), staticOptions));
+// Explicit Admin Routes (supports /admin, /admin/, /admin.html)
+app.get(['/admin', '/admin/'], (_req, res) => {
+    const adminPaths = [
+        path_1.default.join(process.cwd(), 'admin.html'),
+        path_1.default.join(__dirname, '..', 'admin.html'),
+        path_1.default.join(__dirname, 'admin.html'),
+        path_1.default.join(process.cwd(), 'public', 'admin.html')
+    ];
+    for (const p of adminPaths) {
+        if (fs_1.default.existsSync(p)) {
+            return res.sendFile(p);
+        }
+    }
+    res.sendFile(path_1.default.join(__dirname, '..', 'admin.html'));
+});
+// General static middleware
+app.use(express_1.default.static(path_1.default.join(process.cwd(), 'public'), staticOptions));
+app.use(express_1.default.static(path_1.default.join(__dirname, '..'), staticOptions));
+app.use(express_1.default.static(path_1.default.join(__dirname), staticOptions));
 // Fallback to index.html for root navigation
 app.get('/', (_req, res) => {
+    const indexPaths = [
+        path_1.default.join(process.cwd(), 'index.html'),
+        path_1.default.join(__dirname, '..', 'index.html'),
+        path_1.default.join(__dirname, 'index.html'),
+        path_1.default.join(process.cwd(), 'public', 'index.html')
+    ];
+    for (const p of indexPaths) {
+        if (fs_1.default.existsSync(p)) {
+            return res.sendFile(p);
+        }
+    }
     res.sendFile(path_1.default.join(__dirname, '..', 'index.html'));
 });
 // 6. Global Safe Error Handler

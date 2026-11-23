@@ -4,7 +4,7 @@
   "description": "Secure Full-Stack Portfolio & Contact Management System with Supabase, Resend, and Cloudflare Turnstile",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/build.js",
     "start": "tsx src/server.ts",
     "start:prod": "node dist/server.js",
     "dev": "tsx watch src/server.ts",

@@ -5,6 +5,7 @@
 
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import cors from 'cors';
 import helmet from 'helmet';
 import { config, logger } from './config';
@@ -102,19 +103,52 @@ app.get('/api/health', async (_req, res) => {
   });
 });
 
-// Explicit Admin Route
-app.get('/admin', (_req, res) => {
+// 5. Static File & Asset Hosting with Multi-Path Resilient Resolution
+const staticOptions = {
+  extensions: ['html'],
+  maxAge: config.env === 'production' ? '1d' : 0
+};
+
+// Explicit static routes for /assets
+app.use('/assets', express.static(path.join(process.cwd(), 'assets'), staticOptions));
+app.use('/assets', express.static(path.join(__dirname, '..', 'assets'), staticOptions));
+app.use('/assets', express.static(path.join(__dirname, 'assets'), staticOptions));
+app.use('/assets', express.static(path.join(process.cwd(), 'public', 'assets'), staticOptions));
+
+// Explicit Admin Routes (supports /admin, /admin/, /admin.html)
+app.get(['/admin', '/admin/'], (_req, res) => {
+  const adminPaths = [
+    path.join(process.cwd(), 'admin.html'),
+    path.join(__dirname, '..', 'admin.html'),
+    path.join(__dirname, 'admin.html'),
+    path.join(process.cwd(), 'public', 'admin.html')
+  ];
+  for (const p of adminPaths) {
+    if (fs.existsSync(p)) {
+      return res.sendFile(p);
+    }
+  }
   res.sendFile(path.join(__dirname, '..', 'admin.html'));
 });
 
-// 5. Static File Hosting (Serves index.html, admin.html, assets)
-app.use(express.static(path.join(__dirname, '..'), {
-  extensions: ['html'],
-  maxAge: config.env === 'production' ? '1d' : 0
-}));
+// General static middleware
+app.use(express.static(path.join(process.cwd(), 'public'), staticOptions));
+app.use(express.static(path.join(__dirname, '..'), staticOptions));
+app.use(express.static(path.join(__dirname), staticOptions));
 
 // Fallback to index.html for root navigation
 app.get('/', (_req, res) => {
+  const indexPaths = [
+    path.join(process.cwd(), 'index.html'),
+    path.join(__dirname, '..', 'index.html'),
+    path.join(__dirname, 'index.html'),
+    path.join(process.cwd(), 'public', 'index.html')
+  ];
+  for (const p of indexPaths) {
+    if (fs.existsSync(p)) {
+      return res.sendFile(p);
+    }
+  }
   res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 

@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="crimson">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Portal — Contact Management System | B. Akash Pandi</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2308080D'/%3E%3Cpath d='M32 12 L48 50 L40 50 L36.2 40 L27.8 40 L24 50 L16 50 Z M32 23 L29.5 32.5 L34.5 32.5 Z' fill='%23FF1744'/%3E%3Ccircle cx='46' cy='48' r='4' fill='%23FF1744'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <!-- Supabase JS SDK for Client-Side Auth and Real-time Listeners -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#08080D',
+            surface: '#111118',
+            surfaceElevated: '#171722',
+            crimson: '#FF1744',
+            crimsonDeep: '#E50936',
+            ink: '#FFFFFF',
+            muted: '#B4B4BE',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['Space Grotesk', 'Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    :root {
+      --bg-main: #08080D;
+      --bg-secondary: #111118;
+      --primary: #FF1744;
+      --primary-rgb: 255, 23, 68;
+      --accent: #E50936;
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-main);
+      color: #FFFFFF;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection {
+      background: rgba(var(--primary-rgb), 0.42);
+      color: #FFFFFF;
+    }
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: #08080D; }
+    ::-webkit-scrollbar-thumb { background: rgba(var(--primary-rgb), 0.4); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(var(--primary-rgb), 0.8); }
+
+    /* Ambient Backgrounds */
+    .ambient-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+      background-size: 32px 32px;
+      -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 20%, transparent 80%);
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 20%, transparent 80%);
+      opacity: 0.4;
+    }
+    .ambient-noise {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.024;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* Bento Hardware Glass Surface */
+    .bento-card {
+      position: relative;
+      background: linear-gradient(160deg, rgba(22, 20, 29, 0.82), rgba(10, 10, 16, 0.94));
+      backdrop-filter: saturate(160%) blur(22px);
+      -webkit-backdrop-filter: saturate(160%) blur(22px);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.92), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .nav-glass {
+      background: rgba(10, 10, 16, 0.78);
+      backdrop-filter: saturate(180%) blur(22px);
+      -webkit-backdrop-filter: saturate(180%) blur(22px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #FF1744 0%, #D90429 100%);
+      color: #FFFFFF;
+      box-shadow: 0 0 28px rgba(255, 23, 68, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+      transition: all 0.25s var(--ease-out-expo);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 42px rgba(255, 23, 68, 0.68), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .btn-secondary {
+      background: rgba(17, 17, 24, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #FFFFFF;
+      transition: all 0.25s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 23, 68, 0.14);
+      border-color: #FF1744;
+      box-shadow: 0 0 24px rgba(255, 23, 68, 0.25);
+    }
+
+    .cyber-input {
+      background: rgba(8, 8, 13, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #FFFFFF;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+    }
+    .cyber-input:focus {
+      outline: none;
+      border-color: #FF1744;
+      background: rgba(14, 14, 22, 0.98);
+      box-shadow: 0 0 0 3px rgba(255, 23, 68, 0.2);
+    }
+
+    .status-badge-new {
+      background: rgba(255, 23, 68, 0.15);
+      border: 1px solid rgba(255, 23, 68, 0.45);
+      color: #FF1744;
+    }
+    .status-badge-read {
+      background: rgba(148, 163, 184, 0.12);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: #CBD5E1;
+    }
+    .status-badge-replied {
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #34D399;
+    }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: rgba(5, 5, 10, 0.82);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .modal-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+    .modal-panel {
+      transform: translateY(18px) scale(0.96);
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .modal-backdrop.open .modal-panel {
+      transform: translateY(0) scale(1);
+    }
+
+    /* Toast */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 99;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .toast-item {
+      pointer-events: auto;
+      background: rgba(17, 17, 24, 0.98);
+      border: 1px solid rgba(255, 23, 68, 0.55);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.8), 0 0 24px rgba(255, 23, 68, 0.25);
+      backdrop-filter: blur(16px);
+      color: #FFFFFF;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(16px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast-item.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Live Pulsing Dot */
+    .pulse-dot {
+      animation: pulsePing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+    @keyframes pulsePing {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.15); }
+    }
+  </style>
+</head>
+<body class="bg-obsidian text-ink min-h-screen relative flex flex-col">
+
+  <!-- Ambient Layers -->
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-noise" aria-hidden="true"></div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- ========================================================================= -->
+  <!-- 1. LOGIN VIEW (Shown when unauthenticated) -->
+  <!-- ========================================================================= -->
+  <div id="view-login" class="flex-1 flex items-center justify-center p-4 relative z-10">
+    <div class="bento-card rounded-3xl max-w-md w-full p-8 sm:p-10 border border-white/10 shadow-2xl">
+      <div class="text-center mb-8">
+        <a href="./" class="inline-block font-display font-bold text-2xl tracking-[0.14em] text-white uppercase mb-2">
+          AKASH<span class="text-crimson">.</span>
+        </a>
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-crimson/15 border border-crimson/40 text-[10px] font-bold tracking-[0.2em] uppercase text-crimson mb-3">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+          <span>Admin Portal</span>
+        </div>
+        <h1 class="font-display text-xl font-bold text-white uppercase">Protected Administrator Access</h1>
+        <p class="text-xs text-muted mt-2 leading-relaxed">
+          Sign in with your authorized admin account to manage inquiries, reply to visitors, and view statistics.
+        </p>
+      </div>
+
+      <form id="login-form" class="space-y-4" novalidate>
+        <div>
+          <label for="login-email" class="block text-[11px] font-bold uppercase tracking-[0.18em] text-muted mb-1.5">Admin Email</label>
+          <div class="relative">
+            <i data-lucide="mail" class="w-4 h-4 text-muted absolute left-3.5 top-3.5 pointer-events-none"></i>
+            <input id="login-email" type="email" required value="akashpandi506@gmail.com" placeholder="akashpandi506@gmail.com" class="cyber-input w-full pl-10 pr-4 py-2.5 rounded-xl text-sm" />
+          </div>
+        </div>
+
+        <div>
+          <label for="login-password" class="block text-[11px] font-bold uppercase tracking-[0.18em] text-muted mb-1.5">Password</label>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 text-muted absolute left-3.5 top-3.5 pointer-events-none"></i>
+            <input id="login-password" type="password" required placeholder="••••••••••••" class="cyber-input w-full pl-10 pr-10 py-2.5 rounded-xl text-sm" />
+            <button type="button" id="toggle-password-btn" class="absolute right-3 top-3 text-muted hover:text-white" aria-label="Toggle password visibility">
+              <i data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="login-error" class="text-xs text-crimson text-center min-h-[1.2rem] hidden"></div>
+
+        <button id="login-submit-btn" type="submit" class="btn-primary w-full py-3 rounded-xl font-bold text-xs uppercase tracking-[0.16em] flex items-center justify-center gap-2 mt-2">
+          <span>Authenticate &amp; Enter</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+
+        <div class="pt-4 border-t border-white/[0.08] text-center">
+          <a href="./" class="text-xs text-muted hover:text-crimson transition-colors inline-flex items-center gap-1.5">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>Return to Portfolio</span>
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. DASHBOARD VIEW (Shown when authenticated) -->
+  <!-- ========================================================================= -->
+  <div id="view-dashboard" class="flex-1 flex flex-col relative z-10 hidden">
+
+    <!-- Top Admin Glass Header -->
+    <header class="nav-glass sticky top-0 z-40 px-4 sm:px-8 py-3.5">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <a href="./" class="font-display font-bold text-lg tracking-[0.14em] text-white">
+            AKASH<span class="text-crimson">.</span>
+          </a>
+          <span class="text-white/20">|</span>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-white">Inquiry Manager</span>
+            <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-semibold text-emerald-400">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></span>
+              Realtime Active
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div id="admin-user-badge" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.05] border border-white/10 text-xs text-muted">
+            <i data-lucide="user" class="w-3.5 h-3.5 text-crimson"></i>
+            <span id="admin-email-display" class="font-medium text-white/90">admin</span>
+          </div>
+
+          <a href="./" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-medium text-muted hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">
+            <span>Portfolio</span>
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          </a>
+
+          <button id="logout-btn" type="button" class="btn-secondary px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase flex items-center gap-1.5 hover:border-crimson/50" title="Log out">
+            <i data-lucide="log-out" class="w-3.5 h-3.5 text-crimson"></i>
+            <span class="hidden sm:inline">Logout</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Container -->
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-8 py-8 flex-1 flex flex-col gap-6">
+
+      <!-- Navigation Views Bar -->
+      <div class="flex items-center gap-2 border-b border-white/[0.08] pb-4 overflow-x-auto">
+        <button id="tab-btn-enquiries" type="button" class="nav-view-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-crimson text-white transition-all flex items-center gap-2 shadow-sm">
+          <i data-lucide="inbox" class="w-3.5 h-3.5"></i>
+          <span>Enquiries Inbox</span>
+        </button>
+        <button id="tab-btn-queue" type="button" class="nav-view-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-white/[0.05] hover:bg-white/[0.08] text-muted hover:text-white transition-all flex items-center gap-2">
+          <i data-lucide="activity" class="w-3.5 h-3.5 text-crimson"></i>
+          <span>BullMQ Queue</span>
+        </button>
+        <button id="tab-btn-audit" type="button" class="nav-view-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-white/[0.05] hover:bg-white/[0.08] text-muted hover:text-white transition-all flex items-center gap-2">
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-crimson"></i>
+          <span>Audit Logs</span>
+        </button>
+        <div class="ml-auto flex items-center gap-2">
+          <button id="export-csv-action-btn" type="button" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.05] hover:bg-crimson/20 border border-white/10 hover:border-crimson/40 text-white transition-all flex items-center gap-1.5">
+            <i data-lucide="download" class="w-3.5 h-3.5 text-crimson"></i>
+            <span>Export CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW 1: ENQUIRIES INBOX -->
+      <div id="section-enquiries" class="flex flex-col gap-6">
+        <!-- Metrics Row (4 Bento Stat Cards) -->
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4" aria-label="Inquiry Statistics">
+        <!-- Total Inquiries -->
+        <div class="bento-card rounded-2xl p-5 flex items-center justify-between gap-4">
+          <div>
+            <div class="text-[11px] font-bold uppercase tracking-[0.18em] text-muted">Total Inquiries</div>
+            <div id="stat-total" class="font-display text-3xl font-bold text-white mt-1">0</div>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-white shrink-0">
+            <i data-lucide="inbox" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <!-- New / Unread Inquiries -->
+        <div class="bento-card rounded-2xl p-5 flex items-center justify-between gap-4 border-crimson/40 shadow-[0_0_28px_rgba(255,23,68,0.14)]">
+          <div>
+            <div class="text-[11px] font-bold uppercase tracking-[0.18em] text-crimson">New / Unread</div>
+            <div id="stat-new" class="font-display text-3xl font-bold text-white mt-1">0</div>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-crimson/15 border border-crimson/45 flex items-center justify-center text-crimson shrink-0">
+            <i data-lucide="bell-ring" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <!-- Read Inquiries -->
+        <div class="bento-card rounded-2xl p-5 flex items-center justify-between gap-4">
+          <div>
+            <div class="text-[11px] font-bold uppercase tracking-[0.18em] text-muted">Read / Viewed</div>
+            <div id="stat-read" class="font-display text-3xl font-bold text-white mt-1">0</div>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-muted shrink-0">
+            <i data-lucide="mail-open" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <!-- Replied Inquiries -->
+        <div class="bento-card rounded-2xl p-5 flex items-center justify-between gap-4">
+          <div>
+            <div class="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-400">Replied</div>
+            <div id="stat-replied" class="font-display text-3xl font-bold text-white mt-1">0</div>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/35 flex items-center justify-center text-emerald-400 shrink-0">
+            <i data-lucide="check-check" class="w-5 h-5"></i>
+          </div>
+        </div>
+      </section>
+
+      <!-- Search, Status Filter & Toolbar -->
+      <section class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <!-- Search Input -->
+        <div class="relative flex-1 max-w-md">
+          <i data-lucide="search" class="w-4 h-4 text-muted absolute left-3.5 top-3.5 pointer-events-none"></i>
+          <input id="search-input" type="text" placeholder="Search by name, email, or message keyword..." class="cyber-input w-full pl-10 pr-4 py-2.5 rounded-xl text-sm" />
+        </div>
+
+        <!-- Segmented Status Tabs -->
+        <div class="inline-flex rounded-xl bg-surface border border-white/10 p-1 gap-1 text-xs font-semibold overflow-x-auto" role="tablist">
+          <button type="button" class="status-tab px-3.5 py-1.5 rounded-lg text-white bg-crimson transition-all" data-status="all">All</button>
+          <button type="button" class="status-tab px-3.5 py-1.5 rounded-lg text-muted hover:text-white transition-all" data-status="new">New</button>
+          <button type="button" class="status-tab px-3.5 py-1.5 rounded-lg text-muted hover:text-white transition-all" data-status="read">Read</button>
+          <button type="button" class="status-tab px-3.5 py-1.5 rounded-lg text-muted hover:text-white transition-all" data-status="replied">Replied</button>
+        </div>
+
+        <!-- Refresh Button -->
+        <button id="refresh-btn" type="button" class="btn-secondary px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shrink-0">
+          <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
+          <span class="hidden md:inline">Refresh</span>
+        </button>
+      </section>
+
+      <!-- Messages Table / List Container -->
+      <section class="bento-card rounded-2xl overflow-hidden flex-1 flex flex-col">
+        <div class="overflow-x-auto flex-1">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="border-b border-white/[0.08] bg-surface/50 text-[11px] font-bold uppercase tracking-[0.16em] text-muted">
+                <th class="py-3.5 px-4 sm:px-6">Status</th>
+                <th class="py-3.5 px-4 sm:px-6">Sender Details</th>
+                <th class="py-3.5 px-4 sm:px-6">Message Excerpt</th>
+                <th class="py-3.5 px-4 sm:px-6">Received</th>
+                <th class="py-3.5 px-4 sm:px-6 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="messages-tbody" class="divide-y divide-white/[0.06]">
+              <!-- Dynamic Rows inserted via JS -->
+              <tr>
+                <td colspan="5" class="py-16 text-center text-muted">
+                  <div class="inline-flex items-center gap-2">
+                    <i data-lucide="loader-2" class="w-5 h-5 animate-spin text-crimson"></i>
+                    <span>Loading messages from database...</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Bar -->
+        <div id="pagination-bar" class="border-t border-white/[0.08] px-4 sm:px-6 py-3 flex items-center justify-between text-xs text-muted">
+          <span id="pagination-info">Showing 0 of 0</span>
+          <div class="flex items-center gap-2">
+            <button id="prev-page-btn" class="px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 disabled:opacity-30 disabled:pointer-events-none" disabled>Previous</button>
+            <span id="page-indicator" class="font-mono text-white px-2">1 / 1</span>
+            <button id="next-page-btn" class="px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 disabled:opacity-30 disabled:pointer-events-none" disabled>Next</button>
+          </div>
+        </div>
+      </section>
+      </div><!-- End section-enquiries -->
+
+      <!-- VIEW 2: BULLMQ & REDIS QUEUE MONITOR -->
+      <div id="section-queue" class="flex flex-col gap-6 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="font-display text-xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="activity" class="w-5 h-5 text-crimson"></i>
+              <span>Asynchronous BullMQ Queue & Worker Monitor</span>
+            </h2>
+            <p class="text-xs text-muted mt-1">Real-time status of background notification workers, retry buffers, and queue latency.</p>
+          </div>
+          <button id="retry-queue-jobs-btn" type="button" class="btn-primary px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+            <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
+            <span>Retry Failed Jobs</span>
+          </button>
+        </div>
+
+        <!-- Queue Metrics Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+          <div class="bento-card rounded-2xl p-4 text-center">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted">Queue Mode</div>
+            <div id="q-mode" class="font-mono text-xs font-bold text-emerald-400 mt-1">FALLBACK</div>
+          </div>
+          <div class="bento-card rounded-2xl p-4 text-center">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted">Active Workers</div>
+            <div id="q-active" class="font-display text-2xl font-bold text-white mt-1">0</div>
+          </div>
+          <div class="bento-card rounded-2xl p-4 text-center">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted">Waiting / Queued</div>
+            <div id="q-waiting" class="font-display text-2xl font-bold text-sky-400 mt-1">0</div>
+          </div>
+          <div class="bento-card rounded-2xl p-4 text-center">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted">Completed</div>
+            <div id="q-completed" class="font-display text-2xl font-bold text-emerald-400 mt-1">0</div>
+          </div>
+          <div class="bento-card rounded-2xl p-4 text-center">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted">Delayed (Backoff)</div>
+            <div id="q-delayed" class="font-display text-2xl font-bold text-amber-400 mt-1">0</div>
+          </div>
+          <div class="bento-card rounded-2xl p-4 text-center">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-muted">Failed (DLQ)</div>
+            <div id="q-failed" class="font-display text-2xl font-bold text-crimson mt-1">0</div>
+          </div>
+        </div>
+
+        <!-- Telemetry Details Card -->
+        <div class="bento-card rounded-2xl p-6">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-white mb-3 flex items-center gap-2">
+            <i data-lucide="shield-check" class="w-4 h-4 text-crimson"></i>
+            <span>Worker Concurrency & Reliability Policies</span>
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div class="p-3 rounded-xl bg-obsidian border border-white/[0.06]">
+              <div class="text-muted font-semibold">Worker Concurrency</div>
+              <div id="q-concurrency" class="text-white font-mono font-bold mt-1">5 parallel workers</div>
+            </div>
+            <div class="p-3 rounded-xl bg-obsidian border border-white/[0.06]">
+              <div class="text-muted font-semibold">Retry Policy</div>
+              <div class="text-white font-mono font-bold mt-1">5 attempts • Exponential backoff</div>
+            </div>
+            <div class="p-3 rounded-xl bg-obsidian border border-white/[0.06]">
+              <div class="text-muted font-semibold">Queue System Uptime</div>
+              <div id="q-uptime" class="text-white font-mono font-bold mt-1">0s</div>
+            </div>
+          </div>
+        </div>
+      </div><!-- End section-queue -->
+
+      <!-- VIEW 3: AUDIT LOGS -->
+      <div id="section-audit" class="flex flex-col gap-6 hidden">
+        <div>
+          <h2 class="font-display text-xl font-bold text-white flex items-center gap-2">
+            <i data-lucide="shield-alert" class="w-5 h-5 text-crimson"></i>
+            <span>Enterprise Audit Ledger</span>
+          </h2>
+          <p class="text-xs text-muted mt-1">Immutable security ledger capturing all administrative actions, logins, status changes, and MCP tool interactions.</p>
+        </div>
+
+        <div class="bento-card rounded-2xl overflow-hidden flex flex-col">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="border-b border-white/[0.08] bg-surface/50 text-[10px] font-bold uppercase tracking-[0.16em] text-muted">
+                  <th class="py-3 px-4">Action</th>
+                  <th class="py-3 px-4">Actor</th>
+                  <th class="py-3 px-4">IP Address</th>
+                  <th class="py-3 px-4">Timestamp</th>
+                  <th class="py-3 px-4">Details</th>
+                </tr>
+              </thead>
+              <tbody id="audit-tbody" class="divide-y divide-white/[0.04]">
+                <tr>
+                  <td colspan="5" class="py-8 text-center text-muted">Loading audit ledger...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- End section-audit -->
+
+    </main>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 3. MESSAGE DETAIL & REPLY COMPOSER MODAL -->
+  <!-- ========================================================================= -->
+  <div id="detail-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <div class="modal-panel bento-card rounded-3xl max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex items-start justify-between gap-4 pb-5 border-b border-white/[0.08]">
+        <div>
+          <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
+            <span id="detail-status-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider status-badge-new">NEW</span>
+            <div class="flex items-center gap-1.5 text-xs text-muted">
+              <span class="text-[10px] uppercase font-bold tracking-wider text-muted">Priority:</span>
+              <select id="detail-priority-select" class="bg-surface text-white text-xs font-semibold px-2 py-0.5 rounded-lg border border-white/20 cursor-pointer">
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+                <option value="URGENT">URGENT</option>
+              </select>
+            </div>
+            <span id="detail-date" class="text-xs text-muted">Date</span>
+          </div>
+          <h2 id="detail-title" class="font-display text-xl sm:text-2xl font-bold text-white">Inquiry Details</h2>
+        </div>
+        <button id="close-detail-modal" type="button" class="p-2 rounded-full bg-white/[0.05] hover:bg-crimson text-white transition-colors" aria-label="Close modal">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Sender Info Grid -->
+      <div class="my-5 grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-obsidian border border-white/[0.06]">
+        <div>
+          <div class="text-[10px] font-bold uppercase tracking-wider text-muted">Sender Name</div>
+          <div id="detail-name" class="font-semibold text-white mt-0.5">Name</div>
+        </div>
+        <div>
+          <div class="text-[10px] font-bold uppercase tracking-wider text-muted">Sender Email</div>
+          <a id="detail-email" href="#" class="font-semibold text-crimson hover:underline mt-0.5 break-all">email@example.com</a>
+        </div>
+        <div>
+          <div class="text-[10px] font-bold uppercase tracking-wider text-muted">IP Address</div>
+          <div id="detail-ip" class="text-xs text-muted font-mono mt-0.5">N/A</div>
+        </div>
+        <div>
+          <div class="text-[10px] font-bold uppercase tracking-wider text-muted">Message ID</div>
+          <div id="detail-id" class="text-[11px] text-muted font-mono mt-0.5 truncate">UUID</div>
+        </div>
+      </div>
+
+      <!-- Message Text -->
+      <div class="mb-6">
+        <div class="text-[11px] font-bold uppercase tracking-[0.18em] text-muted mb-2">Full Message</div>
+        <div id="detail-message-body" class="p-4 rounded-xl bg-obsidian border border-white/[0.08] text-sm text-white/90 leading-relaxed whitespace-pre-wrap font-sans">
+          Message text...
+        </div>
+      </div>
+
+      <!-- Previous Reply Box (if replied) -->
+      <div id="previous-reply-container" class="mb-6 hidden">
+        <div class="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-400 mb-2">Previous Reply Sent</div>
+        <div id="previous-reply-body" class="p-4 rounded-xl bg-emerald-950/20 border border-emerald-500/30 text-sm text-emerald-200 whitespace-pre-wrap"></div>
+      </div>
+
+      <!-- Notification Jobs History (BullMQ Delivery Traces) -->
+      <div id="notification-jobs-container" class="mb-6 hidden">
+        <div class="text-[11px] font-bold uppercase tracking-[0.18em] text-sky-400 mb-2 flex items-center gap-1.5">
+          <i data-lucide="bell" class="w-3.5 h-3.5"></i>
+          <span>Notification &amp; Delivery Traces (BullMQ)</span>
+        </div>
+        <div id="notification-jobs-list" class="space-y-1.5 text-xs"></div>
+      </div>
+
+      <!-- Reply Composer Form -->
+      <div class="pt-5 border-t border-white/[0.08]">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <div class="text-[11px] font-bold uppercase tracking-[0.18em] text-crimson flex items-center gap-1.5">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>Send Direct Email Reply (via Resend)</span>
+          </div>
+          <button id="ai-draft-reply-btn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-crimson/15 hover:bg-crimson/25 border border-crimson/40 text-xs font-semibold text-white transition-all shadow-sm">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-crimson"></i>
+            <span id="ai-draft-btn-text">✨ AI Draft Reply (Gemini)</span>
+          </button>
+        </div>
+        <textarea id="reply-textarea" rows="4" placeholder="Write your professional reply or click '✨ AI Draft Reply' to generate one with Gemini..." class="cyber-input w-full p-3.5 rounded-xl text-sm resize-none"></textarea>
+        
+        <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <button id="mark-read-toggle-btn" type="button" class="btn-secondary px-3.5 py-2 rounded-xl text-xs font-semibold">
+              Mark as Read
+            </button>
+            <button id="delete-from-detail-btn" type="button" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-crimson hover:bg-crimson/10 border border-crimson/30 transition-colors">
+              Delete
+            </button>
+          </div>
+
+          <button id="send-reply-btn" type="button" class="btn-primary px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+            <span>Send Email Reply</span>
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 4. DELETE CONFIRMATION MODAL -->
+  <!-- ========================================================================= -->
+  <div id="delete-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="delete-title">
+    <div class="modal-panel bento-card rounded-2xl max-w-sm w-full p-6 text-center">
+      <div class="w-12 h-12 rounded-full bg-crimson/15 border border-crimson/40 text-crimson mx-auto flex items-center justify-center mb-4">
+        <i data-lucide="trash-2" class="w-6 h-6"></i>
+      </div>
+      <h3 id="delete-title" class="font-display text-lg font-bold text-white uppercase">Delete Message?</h3>
+      <p class="text-xs text-muted mt-2 leading-relaxed">
+        Are you sure you want to delete this message? This action is permanent and cannot be undone.
+      </p>
+      <div class="mt-6 flex items-center justify-center gap-3">
+        <button id="cancel-delete-btn" type="button" class="btn-secondary px-4 py-2 rounded-xl text-xs font-semibold">Cancel</button>
+        <button id="confirm-delete-btn" type="button" class="btn-primary px-4 py-2 rounded-xl text-xs font-bold uppercase bg-crimson hover:bg-red-700">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT: SUPABASE AUTH & REALTIME DASHBOARD LOGIC -->
+  <!-- ========================================================================= -->
+  <script>
+    (function () {
+      'use strict';
+
+      // 1. Initialize Lucide Icons
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      // 2. Global State & Supabase Initialization
+      let supabase = null;
+      let currentUser = null;
+      let sessionToken = null;
+      let messages = [];
+      let currentFilter = 'all';
+      let searchQuery = '';
+      let currentPage = 1;
+      let currentActiveMessage = null;
+      let messageIdPendingDelete = null;
+
+      // Extract Supabase credentials from local configuration or environment endpoint
+      async function initSupabase() {
+        try {
+          const res = await fetch('/api/health');
+          const data = await res.json();
+        } catch (e) {
+          // ignore in offline/static preview
+        }
+
+        // Check if window.supabase is available from CDN
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+          // In production, your project URL and Anon key are populated here
+          const url = window.SUPABASE_CONFIG_URL || localStorage.getItem('sb_url') || 'https://placeholder.supabase.co';
+          const anonKey = window.SUPABASE_CONFIG_ANON_KEY || localStorage.getItem('sb_anon_key') || 'placeholder-anon-key';
+          supabase = window.supabase.createClient(url, anonKey);
+        }
+      }
+
+      initSupabase();
+
+      // 3. Toast Notifications
+      const toastContainer = document.getElementById('toast-container');
+      function showToast(message, isError) {
+        if (!toastContainer) return;
+        const el = document.createElement('div');
+        el.className = 'toast-item';
+        const dotColor = isError ? '#FF1744' : '#10B981';
+        el.innerHTML = '<span style="width:8px;height:8px;border-radius:999px;background:' + dotColor + ';box-shadow:0 0 10px ' + dotColor + ';flex-shrink:0;"></span><span></span>';
+        el.querySelector('span:last-child').textContent = message;
+        toastContainer.appendChild(el);
+        requestAnimationFrame(() => el.classList.add('show'));
+        setTimeout(() => {
+          el.classList.remove('show');
+          setTimeout(() => el.remove(), 320);
+        }, 3400);
+      }
+
+      // 4. View Switching (Login vs Dashboard)
+      const viewLogin = document.getElementById('view-login');
+      const viewDashboard = document.getElementById('view-dashboard');
+      const adminEmailDisplay = document.getElementById('admin-email-display');
+
+      function showLoginView() {
+        viewLogin.classList.remove('hidden');
+        viewDashboard.classList.add('hidden');
+        sessionToken = null;
+        currentUser = null;
+      }
+
+      function showDashboardView(user, token) {
+        currentUser = user;
+        sessionToken = token;
+        viewLogin.classList.add('hidden');
+        viewDashboard.classList.remove('hidden');
+        if (adminEmailDisplay) {
+          adminEmailDisplay.textContent = user.email || 'Admin';
+        }
+        loadDashboardMessages();
+        setupRealtimeSubscription();
+      }
+
+      // 5. Password Toggle
+      const togglePasswordBtn = document.getElementById('toggle-password-btn');
+      const passwordInput = document.getElementById('login-password');
+      if (togglePasswordBtn && passwordInput) {
+        togglePasswordBtn.addEventListener('click', () => {
+          const isPassword = passwordInput.type === 'password';
+          passwordInput.type = isPassword ? 'text' : 'password';
+          togglePasswordBtn.innerHTML = isPassword ? '<i data-lucide="eye-off" class="w-4 h-4"></i>' : '<i data-lucide="eye" class="w-4 h-4"></i>';
+          lucide.createIcons();
+        });
+      }
+
+      // 6. Login Form Submission (JWT Authentication via Backend API + Supabase Auth)
+      const loginForm = document.getElementById('login-form');
+      const loginError = document.getElementById('login-error');
+      const loginSubmitBtn = document.getElementById('login-submit-btn');
+
+      if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = document.getElementById('login-email').value.trim();
+          const password = passwordInput.value;
+
+          if (!email || !password) {
+            showLoginError('Please enter both email and password.');
+            return;
+          }
+
+          loginError.classList.add('hidden');
+          loginSubmitBtn.disabled = true;
+          loginSubmitBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Authenticating...</span>';
+          lucide.createIcons();
+
+          try {
+            // First attempt backend TypeScript JWT authentication
+            const res = await fetch('/api/admin/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+            if (res.ok && data.success && data.token) {
+              sessionStorage.setItem('admin_jwt_token', data.token);
+              showToast(`Welcome back, ${data.user?.name || data.user?.email}!`, false);
+              showDashboardView(data.user, data.token);
+              return;
+            }
+
+            // Fallback to Supabase Auth if backend endpoint failed or not mounted
+            if (supabase && !supabase.supabaseUrl.includes('placeholder')) {
+              const { data: sbData, error: sbErr } = await supabase.auth.signInWithPassword({ email, password });
+              if (sbErr) throw sbErr;
+              sessionStorage.setItem('admin_jwt_token', sbData.session.access_token);
+              showToast('Admin session verified via Supabase Auth.', false);
+              showDashboardView(sbData.user, sbData.session.access_token);
+              return;
+            }
+
+            throw new Error(data.error || 'Invalid administrator credentials.');
+          } catch (err) {
+            console.error('[Login Error]', err);
+            showLoginError(err.message || 'Invalid credentials or access denied.');
+          } finally {
+            loginSubmitBtn.disabled = false;
+            loginSubmitBtn.innerHTML = '<span>Authenticate &amp; Enter</span><i data-lucide="arrow-right" class="w-4 h-4"></i>';
+            lucide.createIcons();
+          }
+        });
+      }
+
+      function showLoginError(msg) {
+        if (!loginError) return;
+        loginError.textContent = msg;
+        loginError.classList.remove('hidden');
+      }
+
+      // 7. Logout Handler
+      const logoutBtn = document.getElementById('logout-btn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+          if (supabase) {
+            try { await supabase.auth.signOut(); } catch (e) {}
+          }
+          sessionStorage.removeItem('admin_jwt_token');
+          sessionStorage.removeItem('admin_dev_token');
+          showToast('Logged out of admin console.', false);
+          showLoginView();
+        });
+      }
+
+      // 8. Fetch Messages & Metrics from API
+      const messagesTbody = document.getElementById('messages-tbody');
+      const statTotal = document.getElementById('stat-total');
+      const statNew = document.getElementById('stat-new');
+      const statRead = document.getElementById('stat-read');
+      const statReplied = document.getElementById('stat-replied');
+      const paginationInfo = document.getElementById('pagination-info');
+      const pageIndicator = document.getElementById('page-indicator');
+      const prevPageBtn = document.getElementById('prev-page-btn');
+      const nextPageBtn = document.getElementById('next-page-btn');
+
+      async function loadDashboardMessages() {
+        if (!sessionToken) return;
+
+        try {
+          const url = new URL('/api/admin/messages', window.location.origin);
+          url.searchParams.set('status', currentFilter);
+          if (searchQuery) url.searchParams.set('search', searchQuery);
+          url.searchParams.set('page', currentPage);
+          url.searchParams.set('limit', 15);
+
+          const res = await fetch(url.toString(), {
+            headers: {
+              'Authorization': 'Bearer ' + sessionToken
+            }
+          });
+
+          if (res.status === 401 || res.status === 403) {
+            showToast('Session expired or unauthorized. Please re-authenticate.', true);
+            showLoginView();
+            return;
+          }
+
+          const result = await res.json();
+
+          if (result.success) {
+            messages = result.data || [];
+            updateStats(result.stats || {});
+            renderMessagesTable(messages);
+            updatePagination(result.pagination || {});
+          } else {
+            showToast(result.error || 'Failed to fetch messages', true);
+          }
+        } catch (err) {
+          console.error('[Fetch Messages Error]', err);
+          showToast('Network error contacting backend API', true);
+        }
+      }
+
+      function updateStats(stats) {
+        if (statTotal) statTotal.textContent = stats.total || 0;
+        if (statNew) statNew.textContent = stats.new || 0;
+        if (statRead) statRead.textContent = stats.read || 0;
+        if (statReplied) statReplied.textContent = stats.replied || 0;
+      }
+
+      function updatePagination(pagination) {
+        const total = pagination.total || 0;
+        const page = pagination.page || 1;
+        const totalPages = pagination.totalPages || 1;
+        const limit = pagination.limit || 15;
+
+        const start = total === 0 ? 0 : (page - 1) * limit + 1;
+        const end = Math.min(total, page * limit);
+
+        if (paginationInfo) paginationInfo.textContent = `Showing ${start}-${end} of ${total} inquiries`;
+        if (pageIndicator) pageIndicator.textContent = `${page} / ${totalPages}`;
+        if (prevPageBtn) prevPageBtn.disabled = page <= 1;
+        if (nextPageBtn) nextPageBtn.disabled = page >= totalPages;
+      }
+
+      // 9. Render Messages Table
+      function renderMessagesTable(list) {
+        if (!messagesTbody) return;
+
+        if (!list || list.length === 0) {
+          messagesTbody.innerHTML = `
+            <tr>
+              <td colspan="5" class="py-16 text-center text-muted">
+                <div class="flex flex-col items-center justify-center gap-2">
+                  <i data-lucide="inbox" class="w-8 h-8 text-muted/50 mb-1"></i>
+                  <span class="text-sm font-semibold text-white">No inquiries found</span>
+                  <span class="text-xs text-muted">No messages match the current status filter or search criteria.</span>
+                </div>
+              </td>
+            </tr>
+          `;
+          lucide.createIcons();
+          return;
+        }
+
+        messagesTbody.innerHTML = list.map((msg) => {
+          const initials = (msg.name || 'Anonymous')
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .substring(0, 2)
+            .toUpperCase();
+
+          const dateStr = formatRelativeDate(msg.created_at);
+          const statusClass = msg.status === 'new' 
+            ? 'status-badge-new' 
+            : (msg.status === 'replied' ? 'status-badge-replied' : 'status-badge-read');
+
+          const statusIcon = msg.status === 'new'
+            ? '<span class="w-1.5 h-1.5 rounded-full bg-crimson mr-1.5"></span>'
+            : (msg.status === 'replied' ? '<i data-lucide="check" class="w-3 h-3 mr-1 inline"></i>' : '');
+
+          const priorityBadgeClass = {
+            'URGENT': 'bg-crimson/20 text-crimson border-crimson/40',
+            'HIGH': 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+            'MEDIUM': 'bg-white/[0.06] text-white/80 border-white/10',
+            'LOW': 'bg-sky-500/20 text-sky-300 border-sky-500/40'
+          }[msg.priority] || 'bg-white/[0.06] text-white/80 border-white/10';
+
+          const categoryBadgeClass = {
+            'HIRING': 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+            'PROJECT': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+            'COLLABORATION': 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+            'GENERAL': 'bg-white/[0.06] text-muted border-white/10'
+          }[msg.category] || 'bg-white/[0.06] text-muted border-white/10';
+
+          return `
+            <tr class="hover:bg-white/[0.02] transition-colors cursor-pointer group" data-msg-id="${msg.id}">
+              <!-- Status & Meta Column -->
+              <td class="py-4 px-4 sm:px-6 whitespace-nowrap">
+                <div class="flex flex-col gap-1 items-start">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusClass}">
+                    ${statusIcon}${msg.status}
+                  </span>
+                  <div class="flex items-center gap-1 mt-0.5">
+                    <span class="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider border ${priorityBadgeClass}">
+                      ${msg.priority || 'MEDIUM'}
+                    </span>
+                    <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold uppercase tracking-wider border ${categoryBadgeClass}">
+                      ${msg.category || 'GENERAL'}
+                    </span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Sender Column -->
+              <td class="py-4 px-4 sm:px-6">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-crimson/15 border border-crimson/35 text-crimson font-bold text-xs flex items-center justify-center shrink-0">
+                    ${initials}
+                  </div>
+                  <div class="min-w-0">
+                    <div class="font-semibold text-white truncate text-sm">${escapeHtml(msg.name)}</div>
+                    <a href="mailto:${escapeHtml(msg.email)}" class="email-link text-xs text-muted hover:text-crimson truncate block">${escapeHtml(msg.email)}</a>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Message Preview -->
+              <td class="py-4 px-4 sm:px-6 max-w-xs truncate text-xs text-white/80">
+                ${escapeHtml(msg.message)}
+              </td>
+
+              <!-- Timestamp -->
+              <td class="py-4 px-4 sm:px-6 text-xs text-muted whitespace-nowrap">
+                ${dateStr}
+              </td>
+
+              <!-- Action Buttons -->
+              <td class="actions-cell py-4 px-4 sm:px-6 text-right whitespace-nowrap">
+                <div class="flex items-center justify-end gap-1.5">
+                  <button type="button" class="btn-view-msg p-2 rounded-lg bg-white/[0.04] hover:bg-white/10 text-muted hover:text-white transition-colors" data-id="${msg.id}" title="View & Reply">
+                    <i data-lucide="eye" class="w-4 h-4"></i>
+                  </button>
+                  <button type="button" class="btn-quick-status p-2 rounded-lg bg-white/[0.04] hover:bg-white/10 text-muted hover:text-white transition-colors" data-id="${msg.id}" data-current="${msg.status}" title="Toggle Read/Unread">
+                    <i data-lucide="${msg.status === 'new' ? 'check' : 'rotate-ccw'}" class="w-4 h-4"></i>
+                  </button>
+                  <button type="button" class="btn-delete-msg p-2 rounded-lg bg-white/[0.04] hover:bg-crimson/20 text-muted hover:text-crimson transition-colors" data-id="${msg.id}" title="Delete Message">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        lucide.createIcons();
+
+        // Stop row-click propagation on links and action cells
+        messagesTbody.querySelectorAll('.email-link, .actions-cell').forEach(el => {
+          el.addEventListener('click', (e) => e.stopPropagation());
+        });
+
+        // Row Click opens Detail Modal
+        messagesTbody.querySelectorAll('tr[data-msg-id]').forEach(row => {
+          row.addEventListener('click', () => {
+            const id = row.getAttribute('data-msg-id');
+            openDetailModal(id);
+          });
+        });
+
+        // Quick View button
+        messagesTbody.querySelectorAll('.btn-view-msg').forEach(btn => {
+          btn.addEventListener('click', () => {
+            openDetailModal(btn.getAttribute('data-id'));
+          });
+        });
+
+        // Quick status toggle
+        messagesTbody.querySelectorAll('.btn-quick-status').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            const current = btn.getAttribute('data-current');
+            const nextStatus = current === 'new' ? 'read' : 'new';
+            await updateMessageStatus(id, nextStatus);
+          });
+        });
+
+        // Delete button
+        messagesTbody.querySelectorAll('.btn-delete-msg').forEach(btn => {
+          btn.addEventListener('click', () => {
+            promptDeleteMessage(btn.getAttribute('data-id'));
+          });
+        });
+      }
+
+      // 10. Filter Tabs & Search Event Listeners
+      document.querySelectorAll('.status-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.status-tab').forEach(t => {
+            t.classList.remove('bg-crimson', 'text-white');
+            t.classList.add('text-muted');
+          });
+          tab.classList.add('bg-crimson', 'text-white');
+          tab.classList.remove('text-muted');
+          currentFilter = tab.getAttribute('data-status');
+          currentPage = 1;
+          loadDashboardMessages();
+        });
+      });
+
+      const searchInput = document.getElementById('search-input');
+      let searchTimeout = null;
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => {
+            searchQuery = searchInput.value.trim();
+            currentPage = 1;
+            loadDashboardMessages();
+          }, 300);
+        });
+      }
+
+      const refreshBtn = document.getElementById('refresh-btn');
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+          showToast('Refreshing inbox...', false);
+          loadDashboardMessages();
+        });
+      }
+
+      if (prevPageBtn) {
+        prevPageBtn.addEventListener('click', () => {
+          if (currentPage > 1) {
+            currentPage--;
+            loadDashboardMessages();
+          }
+        });
+      }
+      if (nextPageBtn) {
+        nextPageBtn.addEventListener('click', () => {
+          currentPage++;
+          loadDashboardMessages();
+        });
+      }
+
+      // 11. Detail & Reply Composer Modal
+      const detailModal = document.getElementById('detail-modal');
+      const closeDetailModalBtn = document.getElementById('close-detail-modal');
+      const detailTitle = document.getElementById('detail-title');
+      const detailName = document.getElementById('detail-name');
+      const detailEmail = document.getElementById('detail-email');
+      const detailIp = document.getElementById('detail-ip');
+      const detailId = document.getElementById('detail-id');
+      const detailDate = document.getElementById('detail-date');
+      const detailStatusBadge = document.getElementById('detail-status-badge');
+      const detailPrioritySelect = document.getElementById('detail-priority-select');
+      const detailMessageBody = document.getElementById('detail-message-body');
+      const previousReplyContainer = document.getElementById('previous-reply-container');
+      const previousReplyBody = document.getElementById('previous-reply-body');
+      const notificationJobsContainer = document.getElementById('notification-jobs-container');
+      const notificationJobsList = document.getElementById('notification-jobs-list');
+      const replyTextarea = document.getElementById('reply-textarea');
+      const sendReplyBtn = document.getElementById('send-reply-btn');
+      const markReadToggleBtn = document.getElementById('mark-read-toggle-btn');
+      const deleteFromDetailBtn = document.getElementById('delete-from-detail-btn');
+
+      function openDetailModal(id) {
+        const msg = messages.find(m => m.id === id);
+        if (!msg) return;
+
+        currentActiveMessage = msg;
+        detailName.textContent = msg.name || 'Anonymous';
+        detailEmail.textContent = msg.email;
+        detailEmail.href = 'mailto:' + msg.email;
+        detailIp.textContent = msg.ip_address || 'Not recorded';
+        detailId.textContent = msg.id;
+        detailDate.textContent = new Date(msg.created_at).toLocaleString();
+        detailMessageBody.textContent = msg.message;
+        replyTextarea.value = '';
+
+        // Status badge
+        detailStatusBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ' + 
+          (msg.status === 'new' ? 'status-badge-new' : (msg.status === 'replied' ? 'status-badge-replied' : 'status-badge-read'));
+        detailStatusBadge.textContent = msg.status;
+
+        // Priority selector
+        if (detailPrioritySelect) {
+          detailPrioritySelect.value = msg.priority || 'MEDIUM';
+        }
+
+        // Auto mark as read if new
+        if (msg.status === 'new') {
+          updateMessageStatus(msg.id, 'read', false);
+        }
+
+        markReadToggleBtn.textContent = msg.status === 'read' ? 'Mark as New' : 'Mark as Read';
+
+        // Show previous reply if present
+        if (msg.reply_notes) {
+          previousReplyContainer.classList.remove('hidden');
+          previousReplyBody.textContent = msg.reply_notes;
+        } else {
+          previousReplyContainer.classList.add('hidden');
+        }
+
+        // Render notification traces (BullMQ queue jobs)
+        if (notificationJobsContainer && notificationJobsList) {
+          if (msg.notificationJobs && msg.notificationJobs.length > 0) {
+            notificationJobsContainer.classList.remove('hidden');
+            notificationJobsList.innerHTML = msg.notificationJobs.map(job => {
+              const statusColor = job.status === 'COMPLETED' ? 'text-emerald-400 border-emerald-500/30' : (job.status === 'FAILED' ? 'text-crimson border-crimson/30' : 'text-sky-400 border-sky-500/30');
+              return `
+                <div class="p-2.5 rounded-lg bg-obsidian border ${statusColor} flex items-center justify-between text-[11px]">
+                  <div>
+                    <span class="font-bold tracking-wider">${escapeHtml(job.type)}</span>
+                    <span class="text-muted ml-2">Attempts: ${job.attempts || 1}/${job.maxRetries || 5}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-[10px] uppercase font-bold">${escapeHtml(job.status)}</span>
+                    ${job.lastError ? `<span class="text-crimson truncate max-w-xs" title="${escapeHtml(job.lastError)}">${escapeHtml(job.lastError)}</span>` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('');
+          } else {
+            notificationJobsContainer.classList.add('hidden');
+          }
+        }
+
+        detailModal.classList.add('open');
+        lucide.createIcons();
+      }
+
+      function closeDetailModal() {
+        if (detailModal) detailModal.classList.remove('open');
+        currentActiveMessage = null;
+      }
+
+      if (closeDetailModalBtn) closeDetailModalBtn.addEventListener('click', closeDetailModal);
+      if (detailModal) {
+        detailModal.addEventListener('click', (e) => {
+          if (e.target === detailModal) closeDetailModal();
+        });
+      }
+
+      // Priority selector listener
+      if (detailPrioritySelect) {
+        detailPrioritySelect.addEventListener('change', async (e) => {
+          if (!currentActiveMessage) return;
+          const newPriority = e.target.value;
+          try {
+            const res = await fetch(`/api/admin/enquiries/${currentActiveMessage.id}/priority`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + sessionToken
+              },
+              body: JSON.stringify({ priority: newPriority })
+            });
+            const data = await res.json();
+            if (data.success) {
+              showToast(`Priority updated to ${newPriority}`, false);
+              currentActiveMessage.priority = newPriority;
+              loadDashboardMessages();
+            } else {
+              showToast(data.error || 'Failed to update priority', true);
+            }
+          } catch (err) {
+            console.error('[Priority Error]', err);
+            showToast('Network error updating priority', true);
+          }
+        });
+      }
+
+      // Mark read toggle inside modal
+      if (markReadToggleBtn) {
+        markReadToggleBtn.addEventListener('click', async () => {
+          if (!currentActiveMessage) return;
+          const next = currentActiveMessage.status === 'read' ? 'new' : 'read';
+          await updateMessageStatus(currentActiveMessage.id, next, true);
+          closeDetailModal();
+        });
+      }
+
+      // AI Draft Reply using Google Gemini Interactions API
+      const aiDraftBtn = document.getElementById('ai-draft-reply-btn');
+      const aiDraftBtnText = document.getElementById('ai-draft-btn-text');
+
+      if (aiDraftBtn) {
+        aiDraftBtn.addEventListener('click', async () => {
+          if (!currentActiveMessage) return;
+
+          aiDraftBtn.disabled = true;
+          if (aiDraftBtnText) aiDraftBtnText.textContent = 'Generating with Gemini...';
+          showToast('Consulting Gemini AI for draft response...', false);
+
+          try {
+            const res = await fetch('/api/ai/draft-reply', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + sessionToken
+              },
+              body: JSON.stringify({
+                name: currentActiveMessage.name,
+                email: currentActiveMessage.email,
+                message: currentActiveMessage.message
+              })
+            });
+
+            const data = await res.json();
+            if (res.ok && data.success && data.draft) {
+              replyTextarea.value = data.draft;
+              showToast('✨ AI draft generated by Gemini!', false);
+              replyTextarea.focus();
+            } else {
+              showToast(data.error || 'Failed to generate AI draft.', true);
+            }
+          } catch (err) {
+            console.error('[AI Draft Error]', err);
+            showToast('Network error contacting Gemini AI service.', true);
+          } finally {
+            aiDraftBtn.disabled = false;
+            if (aiDraftBtnText) aiDraftBtnText.textContent = '✨ AI Draft Reply (Gemini)';
+            lucide.createIcons();
+          }
+        });
+      }
+
+      // Send email reply via Resend API
+      if (sendReplyBtn) {
+        sendReplyBtn.addEventListener('click', async () => {
+          if (!currentActiveMessage) return;
+          const replyText = replyTextarea.value.trim();
+
+          if (!replyText) {
+            showToast('Please type a reply message before sending.', true);
+            return;
+          }
+
+          sendReplyBtn.disabled = true;
+          sendReplyBtn.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Sending via Resend...</span>';
+          lucide.createIcons();
+
+          try {
+            const res = await fetch(`/api/admin/messages/${currentActiveMessage.id}/reply`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + sessionToken
+              },
+              body: JSON.stringify({ replyMessage: replyText })
+            });
+
+            const result = await res.json();
+            if (result.success) {
+              showToast(`Reply successfully emailed to ${currentActiveMessage.email}!`, false);
+              closeDetailModal();
+              loadDashboardMessages();
+            } else {
+              showToast(result.error || 'Failed to dispatch email reply.', true);
+            }
+          } catch (err) {
+            console.error('[Send Reply Error]', err);
+            showToast('Network error sending email reply.', true);
+          } finally {
+            sendReplyBtn.disabled = false;
+            sendReplyBtn.innerHTML = '<span>Send Email Reply</span><i data-lucide="send" class="w-3.5 h-3.5"></i>';
+            lucide.createIcons();
+          }
+        });
+      }
+
+      // 12. Status Update Helper
+      async function updateMessageStatus(id, newStatus, reload = true) {
+        try {
+          const res = await fetch(`/api/admin/messages/${id}/status`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + sessionToken
+            },
+            body: JSON.stringify({ status: newStatus })
+          });
+          const result = await res.json();
+          if (result.success) {
+            showToast(`Status updated to ${newStatus}.`, false);
+            if (reload) loadDashboardMessages();
+          }
+        } catch (err) {
+          console.error('[Status Update Error]', err);
+        }
+      }
+
+      // 13. Delete Confirmation Dialog
+      const deleteModal = document.getElementById('delete-modal');
+      const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+      const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+
+      function promptDeleteMessage(id) {
+        messageIdPendingDelete = id;
+        if (deleteModal) deleteModal.classList.add('open');
+      }
+
+      function closeDeleteModal() {
+        if (deleteModal) deleteModal.classList.remove('open');
+        messageIdPendingDelete = null;
+      }
+
+      if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+      if (deleteModal) {
+        deleteModal.addEventListener('click', (e) => {
+          if (e.target === deleteModal) closeDeleteModal();
+        });
+      }
+
+      if (deleteFromDetailBtn) {
+        deleteFromDetailBtn.addEventListener('click', () => {
+          if (currentActiveMessage) {
+            promptDeleteMessage(currentActiveMessage.id);
+          }
+        });
+      }
+
+      if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', async () => {
+          if (!messageIdPendingDelete) return;
+          confirmDeleteBtn.disabled = true;
+          confirmDeleteBtn.textContent = 'Deleting...';
+
+          try {
+            const res = await fetch(`/api/admin/messages/${messageIdPendingDelete}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': 'Bearer ' + sessionToken
+              }
+            });
+            const result = await res.json();
+            if (result.success) {
+              showToast('Message permanently deleted.', false);
+              closeDeleteModal();
+              closeDetailModal();
+              loadDashboardMessages();
+            } else {
+              showToast(result.error || 'Failed to delete message.', true);
+            }
+          } catch (err) {
+            console.error('[Delete Error]', err);
+            showToast('Network error deleting message.', true);
+          } finally {
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.textContent = 'Yes, Delete';
+          }
+        });
+      }
+
+      // 14. Realtime Subscription (Supabase Realtime WebSockets)
+      function setupRealtimeSubscription() {
+        if (!supabase || supabase.supabaseUrl.includes('placeholder')) return;
+
+        try {
+          supabase
+            .channel('public:contact_messages')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_messages' }, payload => {
+              showToast(`🔔 New inquiry received from ${payload.new?.name || 'Visitor'}!`, false);
+              loadDashboardMessages();
+            })
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'contact_messages' }, () => {
+              loadDashboardMessages();
+            })
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'contact_messages' }, () => {
+              loadDashboardMessages();
+            })
+            .subscribe();
+        } catch (e) {
+          console.warn('[Realtime Subscription Warning]', e);
+        }
+      }
+
+      // Date Formatter Helper
+      function formatRelativeDate(isoStr) {
+        if (!isoStr) return '';
+        const d = new Date(isoStr);
+        const now = new Date();
+        const diffMs = now - d;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffMins < 2) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays === 1) return 'Yesterday';
+        if (diffDays < 7) return `${diffDays}d ago`;
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      // 15. View Navigation Tabs (Inbox vs Queue vs Audit)
+      const tabEnquiries = document.getElementById('tab-btn-enquiries');
+      const tabQueue = document.getElementById('tab-btn-queue');
+      const tabAudit = document.getElementById('tab-btn-audit');
+      const sectionEnquiries = document.getElementById('section-enquiries');
+      const sectionQueue = document.getElementById('section-queue');
+      const sectionAudit = document.getElementById('section-audit');
+
+      function switchMainTab(tab) {
+        // Reset all tabs
+        [tabEnquiries, tabQueue, tabAudit].forEach(btn => {
+          if (!btn) return;
+          btn.className = 'px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.04] text-muted hover:text-white transition-all flex items-center gap-1.5';
+        });
+
+        // Hide all sections
+        if (sectionEnquiries) sectionEnquiries.classList.add('hidden');
+        if (sectionQueue) sectionQueue.classList.add('hidden');
+        if (sectionAudit) sectionAudit.classList.add('hidden');
+
+        if (tab === 'enquiries') {
+          if (tabEnquiries) tabEnquiries.className = 'px-3.5 py-2 rounded-xl text-xs font-semibold bg-crimson text-white shadow-[0_0_20px_rgba(255,23,68,0.3)] transition-all flex items-center gap-1.5';
+          if (sectionEnquiries) sectionEnquiries.classList.remove('hidden');
+          loadDashboardMessages();
+        } else if (tab === 'queue') {
+          if (tabQueue) tabQueue.className = 'px-3.5 py-2 rounded-xl text-xs font-semibold bg-crimson text-white shadow-[0_0_20px_rgba(255,23,68,0.3)] transition-all flex items-center gap-1.5';
+          if (sectionQueue) sectionQueue.classList.remove('hidden');
+          loadQueueStats();
+        } else if (tab === 'audit') {
+          if (tabAudit) tabAudit.className = 'px-3.5 py-2 rounded-xl text-xs font-semibold bg-crimson text-white shadow-[0_0_20px_rgba(255,23,68,0.3)] transition-all flex items-center gap-1.5';
+          if (sectionAudit) sectionAudit.classList.remove('hidden');
+          loadAuditLogs();
+        }
+      }
+
+      if (tabEnquiries) tabEnquiries.addEventListener('click', () => switchMainTab('enquiries'));
+      if (tabQueue) tabQueue.addEventListener('click', () => switchMainTab('queue'));
+      if (tabAudit) tabAudit.addEventListener('click', () => switchMainTab('audit'));
+
+      // 16. Asynchronous Queue Monitor & Retry Controller
+      const retryQueueJobsBtn = document.getElementById('retry-queue-jobs-btn');
+      const qMode = document.getElementById('q-mode');
+      const qActive = document.getElementById('q-active');
+      const qWaiting = document.getElementById('q-waiting');
+      const qCompleted = document.getElementById('q-completed');
+      const qDelayed = document.getElementById('q-delayed');
+      const qFailed = document.getElementById('q-failed');
+      const qConcurrency = document.getElementById('q-concurrency');
+      const qUptime = document.getElementById('q-uptime');
+
+      async function loadQueueStats() {
+        if (!sessionToken) return;
+        try {
+          const res = await fetch('/api/admin/queue/health', {
+            headers: { 'Authorization': 'Bearer ' + sessionToken }
+          });
+          const raw = await res.json();
+          const data = raw.data || raw;
+          if (res.ok && (raw.success || data.health)) {
+            if (qMode) qMode.textContent = data.mode || 'FALLBACK';
+            if (qActive) qActive.textContent = data.active ?? 0;
+            if (qWaiting) qWaiting.textContent = data.waiting ?? 0;
+            if (qCompleted) qCompleted.textContent = data.completed ?? 0;
+            if (qDelayed) qDelayed.textContent = data.delayed ?? 0;
+            if (qFailed) qFailed.textContent = data.failed ?? 0;
+            if (qConcurrency) qConcurrency.textContent = `${data.workerConcurrency || 5} parallel workers`;
+            if (qUptime) qUptime.textContent = `${Math.floor(data.uptimeSeconds || 0)}s`;
+          }
+        } catch (err) {
+          console.error('[Queue Health Error]', err);
+        }
+      }
+
+      if (retryQueueJobsBtn) {
+        retryQueueJobsBtn.addEventListener('click', async () => {
+          retryQueueJobsBtn.disabled = true;
+          retryQueueJobsBtn.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Retrying DLQ...</span>';
+          lucide.createIcons();
+
+          try {
+            const res = await fetch('/api/admin/queue/retry', {
+              method: 'POST',
+              headers: { 'Authorization': 'Bearer ' + sessionToken }
+            });
+            const data = await res.json();
+            if (data.success) {
+              showToast(`Retried ${data.retriedCount || 0} failed notification jobs!`, false);
+              loadQueueStats();
+            } else {
+              showToast(data.error || 'Failed to retry jobs.', true);
+            }
+          } catch (err) {
+            showToast('Network error retrying failed jobs.', true);
+          } finally {
+            retryQueueJobsBtn.disabled = false;
+            retryQueueJobsBtn.innerHTML = '<i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i><span>Retry Failed Jobs</span>';
+            lucide.createIcons();
+          }
+        });
+      }
+
+      // 17. Enterprise Audit Ledger Loader
+      const auditTbody = document.getElementById('audit-tbody');
+      async function loadAuditLogs() {
+        if (!sessionToken || !auditTbody) return;
+        try {
+          auditTbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-muted"><i data-lucide="loader-2" class="w-4 h-4 animate-spin inline mr-2 text-crimson"></i>Loading audit ledger...</td></tr>`;
+          lucide.createIcons();
+
+          const res = await fetch('/api/admin/audit-logs', {
+            headers: { 'Authorization': 'Bearer ' + sessionToken }
+          });
+          const data = await res.json();
+          const logsList = data.data?.logs || data.data || [];
+          if (res.ok && data.success && Array.isArray(logsList)) {
+            if (logsList.length === 0) {
+              auditTbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-muted">No audit events recorded yet.</td></tr>`;
+              return;
+            }
+
+            auditTbody.innerHTML = logsList.map(log => {
+              const actionColor = log.action.includes('REPLY') ? 'text-emerald-400' : (log.action.includes('DELETE') ? 'text-crimson' : 'text-sky-300');
+              const detailsStr = log.details ? (typeof log.details === 'string' ? log.details : JSON.stringify(log.details)) : '-';
+              return `
+                <tr class="hover:bg-white/[0.02] transition-colors">
+                  <td class="py-3 px-4 font-mono font-bold ${actionColor}">${escapeHtml(log.action)}</td>
+                  <td class="py-3 px-4 text-white">${escapeHtml(log.actor || 'SYSTEM')}</td>
+                  <td class="py-3 px-4 text-muted font-mono text-[11px]">${escapeHtml(log.ipAddress || '127.0.0.1')}</td>
+                  <td class="py-3 px-4 text-muted whitespace-nowrap">${formatRelativeDate(log.createdAt)}</td>
+                  <td class="py-3 px-4 text-white/70 max-w-xs truncate" title="${escapeHtml(detailsStr)}">${escapeHtml(detailsStr)}</td>
+                </tr>
+              `;
+            }).join('');
+          } else {
+            auditTbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-crimson">Failed to load audit logs: ${escapeHtml(data.error || 'Unauthorized')}</td></tr>`;
+          }
+        } catch (err) {
+          console.error('[Audit Log Error]', err);
+          auditTbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-crimson">Network error loading audit logs.</td></tr>`;
+        }
+      }
+
+      // 18. Export Inquiries to CSV
+      const exportCsvBtn = document.getElementById('export-csv-action-btn');
+      if (exportCsvBtn) {
+        exportCsvBtn.addEventListener('click', async () => {
+          if (!sessionToken) return;
+          try {
+            showToast('Generating CSV export...', false);
+            const res = await fetch('/api/admin/export?format=csv', {
+              headers: { 'Authorization': 'Bearer ' + sessionToken }
+            });
+            if (!res.ok) throw new Error('Failed to export CSV');
+            const blob = await res.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `portfolio-enquiries-${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(downloadUrl);
+            showToast('CSV export downloaded successfully!', false);
+          } catch (err) {
+            console.error('[Export Error]', err);
+            showToast('Failed to export enquiries data.', true);
+          }
+        });
+      }
+
+      // Check session on page load
+      const savedToken = sessionStorage.getItem('admin_jwt_token') || sessionStorage.getItem('admin_dev_token');
+      if (savedToken) {
+        showDashboardView({ id: 'admin-authenticated', email: 'akashpandi506@gmail.com', role: 'ADMIN' }, savedToken);
+      } else {
+        showLoginView();
+      }
+
+    })();
+  </script>
+</body>
+</html>

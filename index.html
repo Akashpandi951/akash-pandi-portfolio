@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>B. Akash Pandi | Aspiring Data Analyst &amp; AI Tools Enthusiast</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2308080D'/%3E%3Cpath d='M32 12 L48 50 L40 50 L36.2 40 L27.8 40 L24 50 L16 50 Z M32 23 L29.5 32.5 L34.5 32.5 Z' fill='%23FF1744'/%3E%3Ccircle cx='46' cy='48' r='4' fill='%23FF1744'/%3E%3C/svg%3E" />
+  <link rel="preload" as="image" href="assets/akash_portrait.jpg" />
+  <link rel="preload" as="image" href="assets/project_preview.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -2867,7 +2869,7 @@
         <a href="#about" class="hover:text-white transition-colors">About</a>
         <a href="#skills" class="hover:text-white transition-colors">Skills</a>
         <a href="#contact" class="hover:text-crimson transition-colors">Contact</a>
-        <a href="/admin" class="hover:text-crimson text-white/40 transition-colors flex items-center gap-1.5 normal-case tracking-normal" title="Secure Admin Portal">
+        <a href="admin.html" class="hover:text-crimson text-white/40 transition-colors flex items-center gap-1.5 normal-case tracking-normal" title="Secure Admin Portal">
           <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
           <span class="uppercase tracking-wider text-[10px] font-semibold">Admin</span>
         </a>
@@ -2934,6 +2936,10 @@
         <button id="cmd-close-btn" type="button" class="px-2 py-0.5 rounded bg-white/[0.06] text-[10px] font-mono text-muted hover:text-white">ESC</button>
       </div>
       <div id="cmd-list" class="p-2 max-h-72 overflow-y-auto space-y-1">
+        <button type="button" class="cmd-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm text-white hover:bg-crimson/15 transition-colors" data-action="navigate" data-url="admin.html">
+          <span class="flex items-center gap-2.5"><i data-lucide="shield-check" class="w-4 h-4 text-crimson"></i>Open Admin Command Center</span>
+          <span class="text-[11px] text-muted">Admin Portal</span>
+        </button>
         <button type="button" class="cmd-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm text-white hover:bg-crimson/15 transition-colors" data-action="scroll" data-target="#home">
           <span class="flex items-center gap-2.5"><i data-lucide="home" class="w-4 h-4 text-crimson"></i>Home</span>
           <span class="text-[11px] text-muted">Section</span>
@@ -4287,6 +4293,9 @@
             particlesEnabled = !particlesEnabled;
             if (canvas) canvas.style.opacity = particlesEnabled ? '1' : '0';
             showToast(particlesEnabled ? 'Ambient particles enabled' : 'Ambient particles paused', false);
+          } else if (action === 'navigate') {
+            const url = item.getAttribute('data-url');
+            if (url) window.location.href = url;
           } else if (action === 'print') {
             window.print();
           }
