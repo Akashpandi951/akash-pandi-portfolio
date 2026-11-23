@@ -666,6 +666,140 @@
       #nexus-svg-conduits { display: none !important; }
     }
 
+    /* =========================================================================
+       THE "LENS FLARE" OR "SPOTLIGHT" MASK SYSTEM
+       Circular clip-path mask tied to scroll progress (0% -> 150%)
+       revealing the colorful UI layout beneath solid obsidian overlay
+       ========================================================================= */
+    .spotlight-track {
+      position: relative;
+      height: 240vh;
+      background: #08080D;
+    }
+    .spotlight-sticky {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 15;
+      background: #08080D;
+    }
+    .spotlight-stage {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      --spotlight-radius: 0%;
+      --spotlight-diameter: 0%;
+      --spotlight-x: 50%;
+      --spotlight-y: 50%;
+      --spotlight-flare-opacity: 0;
+    }
+    /* Dim silhouette / wireframe layout visible in deep darkness */
+    .spotlight-wireframe-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.14;
+      filter: grayscale(100%) contrast(110%);
+      pointer-events: none;
+      z-index: 5;
+    }
+    /* Vibrant colorful UI layer clipped by circular spotlight mask */
+    .spotlight-color-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      clip-path: circle(var(--spotlight-radius, 0%) at var(--spotlight-x, 50%) var(--spotlight-y, 50%));
+      -webkit-clip-path: circle(var(--spotlight-radius, 0%) at var(--spotlight-x, 50%) var(--spotlight-y, 50%));
+      will-change: clip-path, -webkit-clip-path;
+      z-index: 10;
+      pointer-events: auto;
+    }
+    /* Solid black overlay with radial gradient mask cutting aperture */
+    .spotlight-black-overlay {
+      position: absolute;
+      inset: 0;
+      background: #08080D;
+      z-index: 12;
+      pointer-events: none;
+      -webkit-mask-image: radial-gradient(circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), transparent var(--spotlight-radius, 0%), #08080D calc(var(--spotlight-radius, 0%) + 1.5px));
+      mask-image: radial-gradient(circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), transparent var(--spotlight-radius, 0%), #08080D calc(var(--spotlight-radius, 0%) + 1.5px));
+      will-change: mask-image, -webkit-mask-image;
+    }
+    /* Optical Lens Flare Caustic Light Ring */
+    .spotlight-flare-ring {
+      position: absolute;
+      left: var(--spotlight-x, 50%);
+      top: var(--spotlight-y, 50%);
+      width: var(--spotlight-diameter, 0%);
+      height: var(--spotlight-diameter, 0%);
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 0 35px rgba(255, 23, 68, 0.9), 0 0 75px rgba(0, 240, 255, 0.7), inset 0 0 30px rgba(139, 92, 246, 0.55);
+      pointer-events: none;
+      z-index: 14;
+      will-change: width, height, opacity;
+      opacity: var(--spotlight-flare-opacity, 0);
+      transition: opacity 0.15s ease-out;
+    }
+    /* Anamorphic horizontal glare streak */
+    .spotlight-anamorphic-streak {
+      position: absolute;
+      left: var(--spotlight-x, 50%);
+      top: var(--spotlight-y, 50%);
+      transform: translate(-50%, -50%);
+      width: 140vw;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.8), rgba(255, 255, 255, 0.95), rgba(255, 23, 68, 0.85), transparent);
+      filter: blur(1.5px);
+      pointer-events: none;
+      z-index: 14;
+      opacity: var(--spotlight-flare-opacity, 0);
+      will-change: opacity;
+    }
+    /* Chromatic flare prism spots along optical axis */
+    .spotlight-prism-spot {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 14;
+      opacity: var(--spotlight-flare-opacity, 0);
+      will-change: opacity, transform;
+    }
+    .spotlight-scrub-btn.active {
+      background: rgba(255, 23, 68, 0.22) !important;
+      border-color: rgba(255, 23, 68, 0.6) !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 0 12px rgba(255, 23, 68, 0.3);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .spotlight-track { height: auto !important; }
+      .spotlight-sticky { position: relative !important; height: auto !important; padding: 4rem 1rem !important; }
+      .spotlight-stage { height: auto !important; overflow: visible !important; }
+      .spotlight-color-layer { position: relative !important; clip-path: none !important; -webkit-clip-path: none !important; }
+      .spotlight-black-overlay, .spotlight-wireframe-layer, .spotlight-flare-ring, .spotlight-anamorphic-streak, .spotlight-prism-spot { display: none !important; }
+    }
+
     /* Apple-Style Frosted Floating Navbar */
     .nav-glass {
       background: rgba(10, 10, 16, 0.72);
@@ -1266,9 +1400,223 @@
       pointer-events: none;
     }
 
+    /* ========================================================
+       macOS-INSPIRED MAGNIFICATION DOCK WITH SPRING PHYSICS
+    ======================================================== */
+    .dock-container {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 85;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    }
+
+    .dock-panel {
+      pointer-events: auto;
+      display: flex;
+      align-items: flex-end;
+      gap: 9px;
+      padding: 8px 14px 10px 14px;
+      background: rgba(14, 13, 20, 0.78);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      box-shadow: 
+        0 24px 50px -12px rgba(0, 0, 0, 0.85),
+        0 0 35px -8px rgba(var(--primary-rgb), 0.22),
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.22);
+      height: 68px;
+      position: relative;
+      user-select: none;
+      touch-action: pan-x;
+    }
+
+    .dock-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      text-decoration: none;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      outline: none;
+      transform-origin: bottom center;
+      will-change: width, height, transform;
+    }
+
+    .dock-icon-box {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #E2E8F0;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .dock-item:hover .dock-icon-box,
+    .dock-item:focus-visible .dock-icon-box {
+      background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.25) 0%, rgba(255, 255, 255, 0.08) 100%);
+      border-color: rgba(var(--primary-rgb), 0.6);
+      color: #FFFFFF;
+      box-shadow: 0 6px 22px rgba(var(--primary-rgb), 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .dock-icon {
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      transition: transform 0.2s ease;
+    }
+
+    .dock-divider {
+      width: 1px;
+      height: 28px;
+      background: rgba(255, 255, 255, 0.16);
+      margin: 0 3px 8px 3px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    /* Tooltip (DockLabel) */
+    .dock-tooltip {
+      position: absolute;
+      bottom: calc(100% + 12px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px) scale(0.92);
+      opacity: 0;
+      pointer-events: none;
+      background: rgba(14, 13, 20, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(var(--primary-rgb), 0.45);
+      color: #FFFFFF;
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 4px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 14px rgba(var(--primary-rgb), 0.25);
+      transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.34, 1.45, 0.64, 1);
+      z-index: 10;
+    }
+    .dock-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 4px;
+      border-style: solid;
+      border-color: rgba(var(--primary-rgb), 0.45) transparent transparent transparent;
+    }
+
+    .dock-item:hover .dock-tooltip,
+    .dock-item:focus-visible .dock-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    /* Active Section Indicator Dot */
+    .dock-dot {
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: transparent;
+      transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    }
+
+    .dock-item.active .dock-dot {
+      background: var(--primary);
+      box-shadow: 0 0 8px var(--primary);
+      transform: translateX(-50%) scale(1.2);
+    }
+
+    /* AI Item Special Glow */
+    .dock-ai-item .dock-icon-box {
+      background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.2) 0%, rgba(255, 255, 255, 0.04) 100%);
+      border-color: rgba(var(--primary-rgb), 0.45);
+    }
+    .dock-ai-pulse {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #34D399;
+      box-shadow: 0 0 8px #34D399;
+    }
+
+    /* Mobile & Small Screens Adaptation */
+    @media (max-width: 640px) {
+      .dock-container {
+        bottom: 12px;
+        width: calc(100vw - 20px);
+        max-width: 420px;
+      }
+      .dock-panel {
+        gap: 4px;
+        padding: 6px 8px 8px 8px;
+        height: 56px;
+        border-radius: 20px;
+        justify-content: space-around;
+        width: 100%;
+      }
+      .dock-item {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+      }
+      .dock-icon-box {
+        border-radius: 10px;
+      }
+      .dock-icon {
+        width: 16px;
+        height: 16px;
+      }
+      .dock-divider {
+        height: 20px;
+        margin: 0 1px 6px 1px;
+      }
+      .dock-tooltip {
+        display: none;
+      }
+      #back-to-top {
+        bottom: 80px;
+        left: 16px;
+        width: 40px;
+        height: 40px;
+      }
+      #ai-assistant-toggle {
+        display: none;
+      }
+    }
+
     /* Recruiter-Friendly Print Stylesheet */
     @media print {
-      #page-loader, #particles-canvas, #tubes-container, .bokeh-layer, header, #back-to-top, #theme-popover, #cmd-modal, #project-modal, #toast-container, #scroll-progress {
+      #page-loader, #particles-canvas, #tubes-container, .bokeh-layer, header, #back-to-top, #theme-popover, #cmd-modal, #project-modal, #toast-container, #scroll-progress, #magnification-dock-container {
         display: none !important;
       }
       body {
@@ -2406,48 +2754,242 @@
       </div>
     </section>
 
-    <!-- 7. INTERNSHIP EXPERIENCE SECTION -->
-    <section id="experience" class="py-20 sm:py-24 px-4 sm:px-6">
-      <div class="max-w-5xl mx-auto">
-        <div class="reveal text-center mb-12">
-          <span class="ref-kicker">Workplace Exposure</span>
-          <h2 class="ref-heading text-4xl sm:text-5xl md:text-6xl mt-2">
-            INTERNSHIP<span class="ref-dot">.</span>
+    <!-- 7. THE "LENS FLARE" OR "SPOTLIGHT" MASK: WORKPLACE EXPOSURE & PRODUCTION ECOSYSTEM -->
+    <section id="experience" class="spotlight-track relative">
+      <div class="spotlight-sticky sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between py-5 sm:py-7 px-4 sm:px-6 pointer-events-none">
+
+        <!-- Top Header HUD -->
+        <div class="relative z-30 max-w-4xl mx-auto text-center pointer-events-auto">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-crimson/10 border border-crimson/35 text-[11px] font-bold tracking-[0.2em] uppercase text-crimson mb-2 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-crimson animate-ping"></span>
+            <span>Spotlight Aperture Engine</span>
+            <span class="text-white/20">•</span>
+            <span id="spotlight-status-badge" class="text-white font-mono">OBSIDIAN SHROUD (0% APERTURE)</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white uppercase tracking-tight">
+            INTERNSHIP &amp; PRODUCTION ECOSYSTEM<span class="text-crimson">.</span>
           </h2>
+          <p class="text-xs sm:text-sm text-muted mt-2 max-w-xl mx-auto leading-relaxed">
+            Scroll down to expand the circular spotlight mask from 0% to 150%, cutting through the obsidian darkness with an optical lens flare to reveal the colorful production layout underneath.
+          </p>
+
+          <!-- Interactive Quick Scrub Controls -->
+          <div class="mt-3 flex items-center justify-center gap-2 text-[10px] font-mono">
+            <button type="button" class="spotlight-scrub-btn active px-3 py-1 rounded-full bg-crimson/20 border border-crimson/50 text-white transition-all cursor-pointer" data-step="0">
+              01 Pitch Obsidian (0%)
+            </button>
+            <button type="button" class="spotlight-scrub-btn px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-muted hover:text-white transition-all cursor-pointer" data-step="1">
+              02 Spotlight Beam (75%)
+            </button>
+            <button type="button" class="spotlight-scrub-btn px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-muted hover:text-white transition-all cursor-pointer" data-step="2">
+              03 Full Spectrum (150%)
+            </button>
+          </div>
         </div>
 
-        <div class="reveal bento-card tilt-card rounded-[28px] p-7 sm:p-9">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/[0.08]">
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-2xl bg-crimson/15 border border-crimson/45 flex items-center justify-center text-crimson shrink-0">
-                <i data-lucide="briefcase" class="w-5 h-5"></i>
+        <!-- The Spotlight Stage (Contains Wireframe, Colorful UI, Solid Black Mask, and Lens Flare) -->
+        <div id="spotlight-stage" class="spotlight-stage relative my-auto w-full max-w-5xl mx-auto flex items-center justify-center pointer-events-auto" style="height: 540px;">
+
+          <!-- Ambient Wireframe / Silhouette Ghost Layer (Subtle preview in deep darkness) -->
+          <div class="spotlight-wireframe-layer">
+            <div class="w-full max-w-5xl px-3 grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              <div class="md:col-span-2 rounded-[24px] border border-white/10 p-6 bg-obsidian/40">
+                <div class="h-6 w-48 bg-white/10 rounded mb-4"></div>
+                <div class="space-y-2">
+                  <div class="h-4 w-full bg-white/5 rounded"></div>
+                  <div class="h-4 w-3/4 bg-white/5 rounded"></div>
+                  <div class="h-4 w-5/6 bg-white/5 rounded"></div>
+                </div>
               </div>
-              <div>
-                <h3 class="font-display text-xl sm:text-2xl font-bold text-white">Roobesh Foods &amp; Co.</h3>
-                <p class="text-sm font-medium text-crimson mt-0.5">Production Company</p>
+              <div class="rounded-[24px] border border-white/10 p-5 bg-obsidian/40">
+                <div class="h-5 w-32 bg-white/10 rounded mb-3"></div>
+                <div class="h-16 w-full bg-white/5 rounded"></div>
+              </div>
+              <div class="rounded-[24px] border border-white/10 p-5 bg-obsidian/40">
+                <div class="h-5 w-32 bg-white/10 rounded mb-3"></div>
+                <div class="h-16 w-full bg-white/5 rounded"></div>
+              </div>
+              <div class="rounded-[24px] border border-white/10 p-5 bg-obsidian/40">
+                <div class="h-5 w-32 bg-white/10 rounded mb-3"></div>
+                <div class="h-16 w-full bg-white/5 rounded"></div>
+              </div>
+              <div class="rounded-[24px] border border-white/10 p-5 bg-obsidian/40">
+                <div class="h-5 w-32 bg-white/10 rounded mb-3"></div>
+                <div class="h-16 w-full bg-white/5 rounded"></div>
               </div>
             </div>
-            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-semibold tracking-wider uppercase text-muted w-fit">
-              <i data-lucide="building-2" class="w-3.5 h-3.5 text-crimson"></i>
-              Industry Exposure
-            </span>
           </div>
 
-          <ul class="mt-6 space-y-3.5">
-            <li class="flex items-start gap-3 text-sm sm:text-base text-white/90">
-              <span class="w-1.5 h-1.5 rounded-full bg-crimson mt-2.5 shrink-0 shadow-[0_0_8px_#FF1744]"></span>
-              <span>Gained practical exposure to a production-company work environment.</span>
-            </li>
-            <li class="flex items-start gap-3 text-sm sm:text-base text-white/90">
-              <span class="w-1.5 h-1.5 rounded-full bg-crimson mt-2.5 shrink-0 shadow-[0_0_8px_#FF1744]"></span>
-              <span>Developed communication and teamwork skills through workplace collaboration.</span>
-            </li>
-            <li class="flex items-start gap-3 text-sm sm:text-base text-white/90">
-              <span class="w-1.5 h-1.5 rounded-full bg-crimson mt-2.5 shrink-0 shadow-[0_0_8px_#FF1744]"></span>
-              <span>Learned basic organizational and operational activities.</span>
-            </li>
-          </ul>
+          <!-- Ultra-Vivid Colorful UI Layout (Revealed by Circular Spotlight Mask) -->
+          <div id="spotlight-color-layer" class="spotlight-color-layer">
+            <div class="w-full max-w-5xl px-3 grid grid-cols-1 md:grid-cols-3 gap-3.5 max-h-[520px] overflow-y-auto sm:overflow-visible custom-scrollbar">
+
+              <!-- Card 1: Roobesh Foods & Co. Primary Operations (Spans 2 Columns) -->
+              <div class="md:col-span-2 rounded-[24px] p-6 sm:p-7 relative overflow-hidden transition-all duration-300" style="background: linear-gradient(135deg, rgba(255, 23, 68, 0.12), rgba(18, 14, 28, 0.95) 40%, rgba(10, 10, 18, 0.98)); border: 1.5px solid rgba(255, 23, 68, 0.45); box-shadow: 0 16px 40px -10px rgba(255, 23, 68, 0.25), 0 0 25px rgba(255, 23, 68, 0.15);">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/[0.12]">
+                  <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-crimson to-amber-500/80 p-0.5 shadow-[0_0_15px_rgba(255,23,68,0.5)]">
+                      <div class="w-full h-full rounded-[14px] bg-[#0c0a12] flex items-center justify-center text-white">
+                        <i data-lucide="briefcase" class="w-5 h-5 text-crimson"></i>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <h3 class="font-display text-xl sm:text-2xl font-bold text-white tracking-wide">Roobesh Foods &amp; Co.</h3>
+                        <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-[9px] font-mono font-bold text-emerald-400">ACTIVE FACILITY</span>
+                      </div>
+                      <p class="text-xs sm:text-sm font-semibold bg-gradient-to-r from-crimson via-amber-400 to-rose-400 bg-clip-text text-transparent mt-0.5">
+                        Production Company • Food Manufacturing &amp; Industrial Operations
+                      </p>
+                    </div>
+                  </div>
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-crimson/20 to-amber-500/20 border border-crimson/40 text-[10px] font-bold tracking-wider uppercase text-amber-300 w-fit">
+                    <i data-lucide="building-2" class="w-3.5 h-3.5 text-crimson"></i>
+                    Industry Exposure
+                  </span>
+                </div>
+
+                <!-- 3 Core Experiential Pillars -->
+                <ul class="mt-4 space-y-2.5 text-xs sm:text-sm text-white/95">
+                  <li class="flex items-start gap-2.5">
+                    <span class="w-2 h-2 rounded-full bg-crimson mt-1.5 shrink-0 shadow-[0_0_10px_#FF1744]"></span>
+                    <span><strong class="text-white">Practical Exposure:</strong> Immersed directly within high-volume production-company workflows, equipment scheduling, and operational protocols.</span>
+                  </li>
+                  <li class="flex items-start gap-2.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0 shadow-[0_0_10px_#F59E0B]"></span>
+                    <span><strong class="text-white">Workplace Collaboration:</strong> Cultivated agile team communication, active listening, and cross-functional synchronization under live operating deadlines.</span>
+                  </li>
+                  <li class="flex items-start gap-2.5">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 mt-1.5 shrink-0 shadow-[0_0_10px_#00F0FF]"></span>
+                    <span><strong class="text-white">Operational Activity:</strong> Executed systematic organizational logging, stock verification, quality checkpoints, and daily process audits.</span>
+                  </li>
+                </ul>
+
+                <!-- Live Production Telemetry Chips -->
+                <div class="mt-4 pt-3.5 border-t border-white/[0.08] grid grid-cols-3 gap-2 text-center">
+                  <div class="px-2.5 py-1.5 rounded-xl bg-white/[0.04] border border-white/10">
+                    <div class="text-[9px] font-mono uppercase text-muted">Throughput</div>
+                    <div class="text-xs sm:text-sm font-bold text-white font-mono">2,450 kg/hr</div>
+                  </div>
+                  <div class="px-2.5 py-1.5 rounded-xl bg-white/[0.04] border border-white/10">
+                    <div class="text-[9px] font-mono uppercase text-muted">QA Compliance</div>
+                    <div class="text-xs sm:text-sm font-bold text-emerald-400 font-mono">99.98%</div>
+                  </div>
+                  <div class="px-2.5 py-1.5 rounded-xl bg-white/[0.04] border border-white/10">
+                    <div class="text-[9px] font-mono uppercase text-muted">Process Boost</div>
+                    <div class="text-xs sm:text-sm font-bold text-amber-300 font-mono">+18.4% Eff.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 2: Quality Assurance & Defect Guard (Cyan Theme) -->
+              <div class="rounded-[24px] p-5 sm:p-6 relative overflow-hidden transition-all duration-300 flex flex-col justify-between" style="background: linear-gradient(145deg, rgba(0, 240, 255, 0.12), rgba(12, 18, 32, 0.95) 45%, rgba(9, 11, 20, 0.98)); border: 1.5px solid rgba(0, 240, 255, 0.45); box-shadow: 0 14px 35px -8px rgba(0, 240, 255, 0.22), 0 0 20px rgba(0, 240, 255, 0.12);">
+                <div>
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-400 shadow-[0_0_12px_rgba(0,240,255,0.4)]">
+                      <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-400/30 text-[9px] font-mono text-cyan-300 font-bold">12/12 ONLINE</span>
+                  </div>
+                  <h4 class="font-display text-base sm:text-lg font-bold text-white tracking-wide">QA &amp; Anomaly Guard</h4>
+                  <p class="text-xs text-white/80 mt-1 leading-relaxed">Systematic defect mitigation across production batches with strict hygiene protocols.</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-cyan-500/20 flex items-center justify-between text-xs font-mono">
+                  <span class="text-cyan-300">Defect Rate</span>
+                  <span class="text-white font-bold">&lt; 0.02%</span>
+                </div>
+              </div>
+
+              <!-- Card 3: Supply Flow & Inventory Telemetry (Emerald Theme) -->
+              <div class="rounded-[24px] p-5 sm:p-6 relative overflow-hidden transition-all duration-300 flex flex-col justify-between" style="background: linear-gradient(145deg, rgba(16, 185, 129, 0.12), rgba(10, 24, 18, 0.95) 45%, rgba(8, 16, 12, 0.98)); border: 1.5px solid rgba(16, 185, 129, 0.45); box-shadow: 0 14px 35px -8px rgba(16, 185, 129, 0.22), 0 0 20px rgba(16, 185, 129, 0.12);">
+                <div>
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.4)]">
+                      <i data-lucide="boxes" class="w-5 h-5"></i>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-[9px] font-mono text-emerald-300 font-bold">ZERO STOCKOUT</span>
+                  </div>
+                  <h4 class="font-display text-base sm:text-lg font-bold text-white tracking-wide">Inventory Telemetry</h4>
+                  <p class="text-xs text-white/80 mt-1 leading-relaxed">Dynamic stock auditing, storage temperature tracking, and FIFO rotation discipline.</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-emerald-500/20 flex items-center justify-between text-xs font-mono">
+                  <span class="text-emerald-300">Turnover Velocity</span>
+                  <span class="text-white font-bold">4.2x / Month</span>
+                </div>
+              </div>
+
+              <!-- Card 4: Workplace Collaboration & Shifts (Electric Purple Theme) -->
+              <div class="rounded-[24px] p-5 sm:p-6 relative overflow-hidden transition-all duration-300 flex flex-col justify-between" style="background: linear-gradient(145deg, rgba(139, 92, 246, 0.12), rgba(20, 14, 32, 0.95) 45%, rgba(12, 9, 20, 0.98)); border: 1.5px solid rgba(139, 92, 246, 0.45); box-shadow: 0 14px 35px -8px rgba(139, 92, 246, 0.22), 0 0 20px rgba(139, 92, 246, 0.12);">
+                <div>
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-purple-400 shadow-[0_0_12px_rgba(139,92,246,0.4)]">
+                      <i data-lucide="users-round" class="w-5 h-5"></i>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-400/30 text-[9px] font-mono text-purple-300 font-bold">SHIFT SYNC</span>
+                  </div>
+                  <h4 class="font-display text-base sm:text-lg font-bold text-white tracking-wide">Shift Collaboration</h4>
+                  <p class="text-xs text-white/80 mt-1 leading-relaxed">Real-time team handoffs, verbal status updates, and peer problem-solving on the shop floor.</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-purple-500/20 flex items-center justify-between text-xs font-mono">
+                  <span class="text-purple-300">Team Alignment</span>
+                  <span class="text-white font-bold">100% On-Time</span>
+                </div>
+              </div>
+
+              <!-- Card 5: Industrial Data & Automation Integration (Amber Theme) -->
+              <div class="rounded-[24px] p-5 sm:p-6 relative overflow-hidden transition-all duration-300 flex flex-col justify-between" style="background: linear-gradient(145deg, rgba(245, 158, 11, 0.12), rgba(28, 18, 10, 0.95) 45%, rgba(16, 11, 8, 0.98)); border: 1.5px solid rgba(245, 158, 11, 0.45); box-shadow: 0 14px 35px -8px rgba(245, 158, 11, 0.22), 0 0 20px rgba(245, 158, 11, 0.12);">
+                <div>
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.4)]">
+                      <i data-lucide="line-chart" class="w-5 h-5"></i>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/30 text-[9px] font-mono text-amber-300 font-bold">ANALYTICS</span>
+                  </div>
+                  <h4 class="font-display text-base sm:text-lg font-bold text-white tracking-wide">Data Applications</h4>
+                  <p class="text-xs text-white/80 mt-1 leading-relaxed">Bridging academic data science foundations with physical industrial food manufacturing operations.</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-amber-500/20 flex items-center justify-between text-xs font-mono">
+                  <span class="text-amber-300">Data Readiness</span>
+                  <span class="text-white font-bold">Production-Grade</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Solid Pitch-Black Obsidian Overlay (Cuts circular aperture via mask-image) -->
+          <div id="spotlight-black-overlay" class="spotlight-black-overlay"></div>
+
+          <!-- Optical Lens Flare Caustic Light Ring (Traces aperture perimeter) -->
+          <div id="spotlight-flare-ring" class="spotlight-flare-ring"></div>
+
+          <!-- Anamorphic Glare Streak (Horizontal optical flare line across spotlight center) -->
+          <div id="spotlight-anamorphic-streak" class="spotlight-anamorphic-streak"></div>
+
+          <!-- Chromatic Aberration Prism Flare Spots (Along optical beam axis) -->
+          <div class="spotlight-prism-spot w-8 h-8 bg-cyan-400/60 blur-[3px]" style="left: calc(var(--spotlight-x, 50%) - 40px); top: calc(var(--spotlight-y, 50%) - 20px);"></div>
+          <div class="spotlight-prism-spot w-12 h-12 bg-crimson/50 blur-[5px]" style="left: calc(var(--spotlight-x, 50%) + 55px); top: calc(var(--spotlight-y, 50%) + 15px);"></div>
+          <div class="spotlight-prism-spot w-6 h-6 bg-purple-400/60 blur-[2px]" style="left: calc(var(--spotlight-x, 50%) + 110px); top: calc(var(--spotlight-y, 50%) + 35px);"></div>
+
         </div>
+
+        <!-- Bottom Telemetry HUD Bar -->
+        <div class="relative z-30 max-w-4xl mx-auto w-full px-4 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[10px] font-mono text-muted border-t border-white/[0.08] pt-3 pointer-events-auto">
+          <div class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-crimson"></span>
+            <span>SPOTLIGHT APERTURE: <strong id="spotlight-aperture-badge" class="text-white">0%</strong> (EXPANDS 0% &rarr; 150%)</span>
+          </div>
+          <div class="hidden md:flex items-center gap-4 text-white/50">
+            <span>RADIAL MASK: HARDWARE-ACCELERATED</span>
+            <span>•</span>
+            <span>OPTICAL CAUSTIC FLARE RING</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <i data-lucide="compass" class="w-3 h-3 text-crimson"></i>
+            <span>HOVER TO PARALLAX BEAM</span>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -2749,8 +3291,8 @@
           <span class="text-[11px] text-muted">Section</span>
         </button>
         <button type="button" class="cmd-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm text-white hover:bg-crimson/15 transition-colors" data-action="scroll" data-target="#experience">
-          <span class="flex items-center gap-2.5"><i data-lucide="briefcase" class="w-4 h-4 text-crimson"></i>Internship — Roobesh Foods &amp; Co.</span>
-          <span class="text-[11px] text-muted">Section</span>
+          <span class="flex items-center gap-2.5"><i data-lucide="scan" class="w-4 h-4 text-crimson"></i>Spotlight Mask Reveal (Roobesh Foods &amp; Co.)</span>
+          <span class="text-[11px] text-muted">Optical Reveal</span>
         </button>
         <button type="button" class="cmd-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm text-white hover:bg-crimson/15 transition-colors" data-action="scroll" data-target="#contact">
           <span class="flex items-center gap-2.5"><i data-lucide="mail" class="w-4 h-4 text-crimson"></i>Contact B. Akash Pandi</span>
@@ -2901,6 +3443,95 @@
       <button id="eco-mode-btn" type="button" class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/[0.07] border border-white/15 text-muted hover:text-white transition-colors" aria-pressed="false">
         Off
       </button>
+    </div>
+  </div>
+
+  <!-- macOS-Inspired Floating MagnificationDock with Spring Physics -->
+  <div id="magnification-dock-container" class="dock-container" aria-label="Quick Actions Navigation Dock">
+    <div id="magnification-dock" class="dock-panel" role="toolbar" aria-label="macOS Magnification Dock">
+      
+      <!-- 1. Home -->
+      <a href="#home" class="dock-item" data-label="Home" data-section="home" aria-label="Navigate to Home">
+        <div class="dock-icon-box">
+          <i data-lucide="home" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Home</span>
+        <span class="dock-dot"></span>
+      </a>
+
+      <!-- 2. Projects (Stacking Cards) -->
+      <a href="#projects" class="dock-item" data-label="Projects Deck" data-section="projects" aria-label="View Projects Deck">
+        <div class="dock-icon-box">
+          <i data-lucide="layers" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Projects Deck</span>
+        <span class="dock-dot"></span>
+      </a>
+
+      <!-- 3. Exploded View Assembly -->
+      <a href="#architecture" class="dock-item" data-label="3D Assembly" data-section="architecture" aria-label="Explore System Assembly">
+        <div class="dock-icon-box">
+          <i data-lucide="box" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">3D Assembly</span>
+        <span class="dock-dot"></span>
+      </a>
+
+      <!-- 4. Convergence Nexus -->
+      <a href="#nexus" class="dock-item" data-label="Convergence Nexus" data-section="nexus" aria-label="Explore Convergence Nexus">
+        <div class="dock-icon-box">
+          <i data-lucide="atom" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Convergence Nexus</span>
+        <span class="dock-dot"></span>
+      </a>
+
+      <!-- 5. Tech Skills -->
+      <a href="#skills" class="dock-item" data-label="Skills &amp; Tools" data-section="skills" aria-label="Explore Tech Skills">
+        <div class="dock-icon-box">
+          <i data-lucide="cpu" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Skills &amp; Tools</span>
+        <span class="dock-dot"></span>
+      </a>
+
+      <!-- 6. Contact -->
+      <a href="#contact" class="dock-item" data-label="Contact Akash" data-section="contact" aria-label="Contact Akash">
+        <div class="dock-icon-box">
+          <i data-lucide="mail" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Contact Akash</span>
+        <span class="dock-dot"></span>
+      </a>
+
+      <!-- macOS Vertical Divider -->
+      <div class="dock-divider" aria-hidden="true"></div>
+
+      <!-- 7. Quick Jump / Command Palette (⌘K) -->
+      <button type="button" class="dock-item dock-btn" id="dock-cmd-btn" data-label="Quick Jump (⌘K)" aria-label="Open Command Palette">
+        <div class="dock-icon-box">
+          <i data-lucide="command" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Quick Jump (⌘K)</span>
+      </button>
+
+      <!-- 8. Theme Studio -->
+      <button type="button" class="dock-item dock-btn" id="dock-theme-btn" data-label="Theme Studio" aria-label="Open Theme Studio">
+        <div class="dock-icon-box">
+          <i data-lucide="palette" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Theme Studio</span>
+      </button>
+
+      <!-- 9. Akash AI Assistant -->
+      <button type="button" class="dock-item dock-btn dock-ai-item" id="dock-ai-btn" data-label="Akash AI (Gemini)" aria-label="Ask Akash AI">
+        <div class="dock-icon-box">
+          <i data-lucide="sparkles" class="dock-icon text-crimson"></i>
+        </div>
+        <span class="dock-tooltip">Akash AI (Gemini)</span>
+        <span class="dock-ai-pulse"></span>
+      </button>
+
     </div>
   </div>
 
@@ -3527,6 +4158,107 @@
         });
       });
 
+      // 5d. The "Lens Flare" or "Spotlight" Mask System (Scroll-Driven Circular Reveal & Optical Flare)
+      const spotlightTrack = document.getElementById('experience');
+      const spotlightStage = document.getElementById('spotlight-stage');
+      const spotlightColorLayer = document.getElementById('spotlight-color-layer');
+      const spotlightBlackOverlay = document.getElementById('spotlight-black-overlay');
+      const spotlightFlareRing = document.getElementById('spotlight-flare-ring');
+      const spotlightAnamorphicStreak = document.getElementById('spotlight-anamorphic-streak');
+      const spotlightStatusBadge = document.getElementById('spotlight-status-badge');
+      const spotlightApertureBadge = document.getElementById('spotlight-aperture-badge');
+      const spotlightScrubBtns = document.querySelectorAll('.spotlight-scrub-btn');
+
+      function updateSpotlightMask(p) {
+        if (!spotlightStage) return;
+        const progress = Math.max(0, Math.min(1, p));
+
+        // Spotlight aperture grows from 0% to 150% in size as user moves down the page
+        const aperture = progress * 150;
+        const diameter = aperture * 2;
+
+        spotlightStage.style.setProperty('--spotlight-radius', aperture.toFixed(2) + '%');
+        spotlightStage.style.setProperty('--spotlight-diameter', diameter.toFixed(2) + '%');
+
+        // Dynamic Optical Lens Flare Opacity:
+        // Caustic glow peaks around 30-70%, then dissolves smoothly as full screen is revealed
+        let flareOpacity = 0;
+        if (progress > 0.02 && progress < 0.72) {
+          flareOpacity = Math.min(1, (progress - 0.02) / 0.16);
+        } else if (progress >= 0.72) {
+          flareOpacity = Math.max(0, 1 - ((progress - 0.72) / 0.26));
+        }
+        spotlightStage.style.setProperty('--spotlight-flare-opacity', flareOpacity.toFixed(3));
+
+        // Update Aperture readout
+        if (spotlightApertureBadge) {
+          spotlightApertureBadge.textContent = Math.round(aperture) + '%';
+        }
+
+        // Update status badge & HUD
+        let currentStep = 0;
+        if (progress < 0.15) {
+          currentStep = 0;
+          if (spotlightStatusBadge) {
+            spotlightStatusBadge.textContent = 'OBSIDIAN SHROUD (0% APERTURE)';
+            spotlightStatusBadge.className = 'text-white font-mono';
+          }
+        } else if (progress < 0.75) {
+          currentStep = 1;
+          if (spotlightStatusBadge) {
+            spotlightStatusBadge.textContent = `OPTICAL FLARE ACTIVE (${Math.round(aperture)}% REVEALED)`;
+            spotlightStatusBadge.className = 'text-amber-300 font-mono font-bold';
+          }
+        } else {
+          currentStep = 2;
+          if (spotlightStatusBadge) {
+            spotlightStatusBadge.textContent = 'FULL SPECTRUM REVEALED (150%)';
+            spotlightStatusBadge.className = 'text-emerald-400 font-mono font-bold';
+          }
+        }
+
+        spotlightScrubBtns.forEach(function (btn) {
+          btn.classList.toggle('active', parseInt(btn.getAttribute('data-step'), 10) === currentStep);
+        });
+      }
+
+      // Interactive mouse parallax to steer the spotlight beam slightly
+      if (spotlightStage) {
+        spotlightStage.addEventListener('mousemove', function (e) {
+          const rect = spotlightStage.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0) {
+            const rawX = ((e.clientX - rect.left) / rect.width) * 100;
+            const rawY = ((e.clientY - rect.top) / rect.height) * 100;
+            // Soft dampening (centers at 50% +/- 14% max travel)
+            const dampenedX = 50 + (rawX - 50) * 0.28;
+            const dampenedY = 50 + (rawY - 50) * 0.28;
+            spotlightStage.style.setProperty('--spotlight-x', dampenedX.toFixed(2) + '%');
+            spotlightStage.style.setProperty('--spotlight-y', dampenedY.toFixed(2) + '%');
+          }
+        });
+        spotlightStage.addEventListener('mouseleave', function () {
+          spotlightStage.style.setProperty('--spotlight-x', '50%');
+          spotlightStage.style.setProperty('--spotlight-y', '50%');
+        });
+      }
+
+      // Quick scrub button listeners for Spotlight Mask
+      spotlightScrubBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (!spotlightTrack) return;
+          const step = parseInt(btn.getAttribute('data-step'), 10);
+          const trackTop = spotlightTrack.getBoundingClientRect().top + window.scrollY;
+          const totalDist = spotlightTrack.offsetHeight - window.innerHeight;
+          let targetProgress = 0.02;
+          if (step === 1) targetProgress = 0.50;
+          if (step === 2) targetProgress = 0.98;
+          window.scrollTo({
+            top: trackTop + (totalDist * targetProgress),
+            behavior: 'smooth'
+          });
+        });
+      });
+
       function onScrollEffects() {
         const scrollTop = window.scrollY;
         const docHeight = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -3627,6 +4359,21 @@
             const scrolledDist = -trackRect.top;
             const progress = Math.max(0, Math.min(1, scrolledDist / totalDist));
             updateNexusConvergence(progress);
+          }
+        }
+
+        // -----------------------------------------------------------------
+        // The "Lens Flare" or "Spotlight" Mask
+        // Circular clip-path mask grows from 0% to 150%, revealing colorful UI
+        // -----------------------------------------------------------------
+        if (spotlightTrack) {
+          const trackRect = spotlightTrack.getBoundingClientRect();
+          const vh = window.innerHeight;
+          const totalDist = trackRect.height - vh;
+          if (totalDist > 0) {
+            const scrolledDist = -trackRect.top;
+            const progress = Math.max(0, Math.min(1, scrolledDist / totalDist));
+            updateSpotlightMask(progress);
           }
         }
       }
@@ -3750,11 +4497,12 @@
       }
 
       // 9. Active Section Scroll-Spy
-      const sections = ['home', 'projects', 'about', 'education', 'skills', 'experience', 'contact']
+      const sections = ['home', 'projects', 'architecture', 'nexus', 'about', 'education', 'skills', 'experience', 'contact']
         .map(function (id) { return document.getElementById(id); })
         .filter(Boolean);
       const navLinks = document.querySelectorAll('.nav-link');
       const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+      const dockSectionItems = document.querySelectorAll('.dock-item[data-section]');
 
       function updateActiveNav() {
         const scrollPos = window.scrollY + 160;
@@ -3774,6 +4522,9 @@
           link.classList.toggle('border', isActive);
           link.classList.toggle('border-crimson/35', isActive);
           link.classList.toggle('text-muted', !isActive);
+        });
+        dockSectionItems.forEach(function (item) {
+          item.classList.toggle('active', item.getAttribute('data-section') === currentId);
         });
       }
       window.addEventListener('scroll', updateActiveNav, { passive: true });
@@ -4411,6 +5162,195 @@
           }
         });
       }
+
+      // 21. macOS-Inspired MagnificationDock with Spring Physics
+      (function initMagnificationDock() {
+        const dockContainer = document.getElementById('magnification-dock-container');
+        const dockPanel = document.getElementById('magnification-dock');
+        if (!dockPanel) return;
+
+        const dockItems = Array.from(dockPanel.querySelectorAll('.dock-item'));
+        if (!dockItems.length) return;
+
+        // Ensure newly injected icons render
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons();
+        }
+
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        let baseSize = window.innerWidth <= 640 ? 34 : 44;
+        let maxMagnification = window.innerWidth <= 640 ? 46 : 68;
+        let interactionDistance = window.innerWidth <= 640 ? 110 : 160;
+
+        window.addEventListener('resize', function () {
+          baseSize = window.innerWidth <= 640 ? 34 : 44;
+          maxMagnification = window.innerWidth <= 640 ? 46 : 68;
+          interactionDistance = window.innerWidth <= 640 ? 110 : 160;
+        }, { passive: true });
+
+        // Item states for spring physics simulation: { mass: 0.1, stiffness: 150, damping: 12 }
+        const itemStates = dockItems.map(function (item) {
+          return {
+            el: item,
+            box: item.querySelector('.dock-icon-box'),
+            icon: item.querySelector('.dock-icon'),
+            currentSize: baseSize,
+            targetSize: baseSize,
+            currentY: 0,
+            targetY: 0,
+            velocitySize: 0,
+            velocityY: 0
+          };
+        });
+
+        let isHovered = false;
+        let mouseX = -9999;
+        let animFrameId = null;
+
+        const springSpeed = 22;
+
+        function updateSpringPhysics(dt) {
+          let active = false;
+          const alpha = 1 - Math.exp(-springSpeed * Math.min(0.05, dt));
+
+          itemStates.forEach(function (state) {
+            state.currentSize += (state.targetSize - state.currentSize) * alpha;
+            state.currentY += (state.targetY - state.currentY) * alpha;
+
+            const isSettled =
+              Math.abs(state.targetSize - state.currentSize) < 0.08 &&
+              Math.abs(state.targetY - state.currentY) < 0.08;
+
+            if (!isSettled) {
+              active = true;
+            } else {
+              state.currentSize = state.targetSize;
+              state.currentY = state.targetY;
+            }
+
+            state.el.style.width = state.currentSize.toFixed(1) + 'px';
+            state.el.style.height = state.currentSize.toFixed(1) + 'px';
+            state.el.style.transform = 'translateY(' + state.currentY.toFixed(1) + 'px)';
+            if (state.icon) {
+              const scale = state.currentSize / baseSize;
+              state.icon.style.transform = 'scale(' + Math.min(1.4, Math.max(0.85, scale)).toFixed(3) + ')';
+            }
+          });
+
+          return active;
+        }
+
+        let lastTime = performance.now();
+        function animationLoop(now) {
+          const dt = Math.min(0.032, (now - lastTime) / 1000);
+          lastTime = now;
+
+          if (isHovered && mouseX > -1000) {
+            itemStates.forEach(function (state) {
+              const rect = state.el.getBoundingClientRect();
+              const itemCenterX = rect.left + rect.width / 2;
+              const dx = mouseX - itemCenterX;
+
+              if (Math.abs(dx) < interactionDistance) {
+                const cosFactor = Math.cos((dx / interactionDistance) * (Math.PI / 2));
+                const factor = Math.max(0, cosFactor);
+                state.targetSize = baseSize + (maxMagnification - baseSize) * factor;
+                state.targetY = -((maxMagnification - baseSize) * factor * 0.42);
+              } else {
+                state.targetSize = baseSize;
+                state.targetY = 0;
+              }
+            });
+          } else {
+            itemStates.forEach(function (state) {
+              state.targetSize = baseSize;
+              state.targetY = 0;
+            });
+          }
+
+          const needsNextFrame = updateSpringPhysics(dt || 0.016);
+          if (needsNextFrame || isHovered) {
+            animFrameId = requestAnimationFrame(animationLoop);
+          } else {
+            animFrameId = null;
+          }
+        }
+
+        function startAnimation() {
+          if (!animFrameId) {
+            lastTime = performance.now();
+            animFrameId = requestAnimationFrame(animationLoop);
+          }
+        }
+
+        if (!isTouchDevice) {
+          dockPanel.addEventListener('mouseenter', function (e) {
+            isHovered = true;
+            mouseX = e.clientX;
+            startAnimation();
+          });
+
+          dockPanel.addEventListener('mousemove', function (e) {
+            isHovered = true;
+            mouseX = e.clientX;
+            startAnimation();
+          });
+
+          dockPanel.addEventListener('mouseleave', function () {
+            isHovered = false;
+            mouseX = -9999;
+            startAnimation();
+          });
+        }
+
+        // Action Handlers
+        const dockCmdBtn = document.getElementById('dock-cmd-btn');
+        if (dockCmdBtn) {
+          dockCmdBtn.addEventListener('click', function () {
+            if (typeof openCmd === 'function') openCmd();
+          });
+        }
+
+        const dockThemeBtn = document.getElementById('dock-theme-btn');
+        if (dockThemeBtn) {
+          dockThemeBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (themePopover) {
+              const isOpen = themePopover.classList.toggle('open');
+              if (themeToggleBtn) themeToggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            }
+          });
+        }
+
+        const dockAiBtn = document.getElementById('dock-ai-btn');
+        if (dockAiBtn) {
+          dockAiBtn.addEventListener('click', function () {
+            if (typeof openAiModal === 'function') openAiModal();
+          });
+        }
+
+        // Smooth scroll for dock anchor links
+        dockItems.forEach(function (item) {
+          if (item.tagName === 'A') {
+            const href = item.getAttribute('href');
+            if (href && href.startsWith('#')) {
+              item.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = href.substring(1);
+                if (targetId === 'home') {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                  const targetEl = document.getElementById(targetId);
+                  if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }
+              });
+            }
+          }
+        });
+      })();
     })();
   </script>
 </body>

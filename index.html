@@ -1266,9 +1266,223 @@
       pointer-events: none;
     }
 
+    /* ========================================================
+       macOS-INSPIRED MAGNIFICATION DOCK WITH SPRING PHYSICS
+    ======================================================== */
+    .dock-container {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 85;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    }
+
+    .dock-panel {
+      pointer-events: auto;
+      display: flex;
+      align-items: flex-end;
+      gap: 9px;
+      padding: 8px 14px 10px 14px;
+      background: rgba(14, 13, 20, 0.78);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      box-shadow: 
+        0 24px 50px -12px rgba(0, 0, 0, 0.85),
+        0 0 35px -8px rgba(var(--primary-rgb), 0.22),
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.22);
+      height: 68px;
+      position: relative;
+      user-select: none;
+      touch-action: pan-x;
+    }
+
+    .dock-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      text-decoration: none;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      outline: none;
+      transform-origin: bottom center;
+      will-change: width, height, transform;
+    }
+
+    .dock-icon-box {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #E2E8F0;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .dock-item:hover .dock-icon-box,
+    .dock-item:focus-visible .dock-icon-box {
+      background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.25) 0%, rgba(255, 255, 255, 0.08) 100%);
+      border-color: rgba(var(--primary-rgb), 0.6);
+      color: #FFFFFF;
+      box-shadow: 0 6px 22px rgba(var(--primary-rgb), 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .dock-icon {
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      transition: transform 0.2s ease;
+    }
+
+    .dock-divider {
+      width: 1px;
+      height: 28px;
+      background: rgba(255, 255, 255, 0.16);
+      margin: 0 3px 8px 3px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    /* Tooltip (DockLabel) */
+    .dock-tooltip {
+      position: absolute;
+      bottom: calc(100% + 12px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px) scale(0.92);
+      opacity: 0;
+      pointer-events: none;
+      background: rgba(14, 13, 20, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(var(--primary-rgb), 0.45);
+      color: #FFFFFF;
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 4px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 14px rgba(var(--primary-rgb), 0.25);
+      transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.34, 1.45, 0.64, 1);
+      z-index: 10;
+    }
+    .dock-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 4px;
+      border-style: solid;
+      border-color: rgba(var(--primary-rgb), 0.45) transparent transparent transparent;
+    }
+
+    .dock-item:hover .dock-tooltip,
+    .dock-item:focus-visible .dock-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    /* Active Section Indicator Dot */
+    .dock-dot {
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: transparent;
+      transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    }
+
+    .dock-item.active .dock-dot {
+      background: var(--primary);
+      box-shadow: 0 0 8px var(--primary);
+      transform: translateX(-50%) scale(1.2);
+    }
+
+    /* AI Item Special Glow */
+    .dock-ai-item .dock-icon-box {
+      background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.2) 0%, rgba(255, 255, 255, 0.04) 100%);
+      border-color: rgba(var(--primary-rgb), 0.45);
+    }
+    .dock-ai-pulse {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #34D399;
+      box-shadow: 0 0 8px #34D399;
+    }
+
+    /* Mobile & Small Screens Adaptation */
+    @media (max-width: 640px) {
+      .dock-container {
+        bottom: 12px;
+        width: calc(100vw - 20px);
+        max-width: 420px;
+      }
+      .dock-panel {
+        gap: 4px;
+        padding: 6px 8px 8px 8px;
+        height: 56px;
+        border-radius: 20px;
+        justify-content: space-around;
+        width: 100%;
+      }
+      .dock-item {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+      }
+      .dock-icon-box {
+        border-radius: 10px;
+      }
+      .dock-icon {
+        width: 16px;
+        height: 16px;
+      }
+      .dock-divider {
+        height: 20px;
+        margin: 0 1px 6px 1px;
+      }
+      .dock-tooltip {
+        display: none;
+      }
+      #back-to-top {
+        bottom: 80px;
+        left: 16px;
+        width: 40px;
+        height: 40px;
+      }
+      #ai-assistant-toggle {
+        display: none;
+      }
+    }
+
     /* Recruiter-Friendly Print Stylesheet */
     @media print {
-      #page-loader, #particles-canvas, #tubes-container, .bokeh-layer, header, #back-to-top, #theme-popover, #cmd-modal, #project-modal, #toast-container, #scroll-progress {
+      #page-loader, #particles-canvas, #tubes-container, .bokeh-layer, header, #back-to-top, #theme-popover, #cmd-modal, #project-modal, #toast-container, #scroll-progress, #magnification-dock-container {
         display: none !important;
       }
       body {
@@ -2904,6 +3118,95 @@
     </div>
   </div>
 
+  <!-- macOS-Inspired Floating MagnificationDock with Spring Physics -->
+  <div id="magnification-dock-container" class="dock-container" aria-label="Quick Actions Navigation Dock">
+    <div id="magnification-dock" class="dock-panel" role="toolbar" aria-label="macOS Magnification Dock">
+      
+      <!-- 1. Home -->
+      <a href="#home" class="dock-item" data-label="Home" data-section="home" aria-label="Navigate to Home">
+        <div class="dock-icon-box">
+          <i data-lucide="home" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Home</span>
+        <span class="dock-dot"></span>
+      </a>
+
+      <!-- 2. Projects (Stacking Cards) -->
+      <a href="#projects" class="dock-item" data-label="Projects Deck" data-section="projects" aria-label="View Projects Deck">
+        <div class="dock-icon-box">
+          <i data-lucide="layers" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Projects Deck</span>
+        <span class="dock-dot"></span>
+      </a>
+
+      <!-- 3. Exploded View Assembly -->
+      <a href="#architecture" class="dock-item" data-label="3D Assembly" data-section="architecture" aria-label="Explore System Assembly">
+        <div class="dock-icon-box">
+          <i data-lucide="box" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">3D Assembly</span>
+        <span class="dock-dot"></span>
+      </a>
+
+      <!-- 4. Convergence Nexus -->
+      <a href="#nexus" class="dock-item" data-label="Convergence Nexus" data-section="nexus" aria-label="Explore Convergence Nexus">
+        <div class="dock-icon-box">
+          <i data-lucide="atom" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Convergence Nexus</span>
+        <span class="dock-dot"></span>
+      </a>
+
+      <!-- 5. Tech Skills -->
+      <a href="#skills" class="dock-item" data-label="Skills &amp; Tools" data-section="skills" aria-label="Explore Tech Skills">
+        <div class="dock-icon-box">
+          <i data-lucide="cpu" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Skills &amp; Tools</span>
+        <span class="dock-dot"></span>
+      </a>
+
+      <!-- 6. Contact -->
+      <a href="#contact" class="dock-item" data-label="Contact Akash" data-section="contact" aria-label="Contact Akash">
+        <div class="dock-icon-box">
+          <i data-lucide="mail" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Contact Akash</span>
+        <span class="dock-dot"></span>
+      </a>
+
+      <!-- macOS Vertical Divider -->
+      <div class="dock-divider" aria-hidden="true"></div>
+
+      <!-- 7. Quick Jump / Command Palette (⌘K) -->
+      <button type="button" class="dock-item dock-btn" id="dock-cmd-btn" data-label="Quick Jump (⌘K)" aria-label="Open Command Palette">
+        <div class="dock-icon-box">
+          <i data-lucide="command" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Quick Jump (⌘K)</span>
+      </button>
+
+      <!-- 8. Theme Studio -->
+      <button type="button" class="dock-item dock-btn" id="dock-theme-btn" data-label="Theme Studio" aria-label="Open Theme Studio">
+        <div class="dock-icon-box">
+          <i data-lucide="palette" class="dock-icon"></i>
+        </div>
+        <span class="dock-tooltip">Theme Studio</span>
+      </button>
+
+      <!-- 9. Akash AI Assistant -->
+      <button type="button" class="dock-item dock-btn dock-ai-item" id="dock-ai-btn" data-label="Akash AI (Gemini)" aria-label="Ask Akash AI">
+        <div class="dock-icon-box">
+          <i data-lucide="sparkles" class="dock-icon text-crimson"></i>
+        </div>
+        <span class="dock-tooltip">Akash AI (Gemini)</span>
+        <span class="dock-ai-pulse"></span>
+      </button>
+
+    </div>
+  </div>
+
   <!-- Floating Back-to-Top Circular Progress Control -->
   <button id="back-to-top" type="button" aria-label="Scroll back to top">
     <svg class="progress-ring" viewBox="0 0 46 46" aria-hidden="true">
@@ -3750,11 +4053,12 @@
       }
 
       // 9. Active Section Scroll-Spy
-      const sections = ['home', 'projects', 'about', 'education', 'skills', 'experience', 'contact']
+      const sections = ['home', 'projects', 'architecture', 'nexus', 'about', 'education', 'skills', 'experience', 'contact']
         .map(function (id) { return document.getElementById(id); })
         .filter(Boolean);
       const navLinks = document.querySelectorAll('.nav-link');
       const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+      const dockSectionItems = document.querySelectorAll('.dock-item[data-section]');
 
       function updateActiveNav() {
         const scrollPos = window.scrollY + 160;
@@ -3774,6 +4078,9 @@
           link.classList.toggle('border', isActive);
           link.classList.toggle('border-crimson/35', isActive);
           link.classList.toggle('text-muted', !isActive);
+        });
+        dockSectionItems.forEach(function (item) {
+          item.classList.toggle('active', item.getAttribute('data-section') === currentId);
         });
       }
       window.addEventListener('scroll', updateActiveNav, { passive: true });
@@ -4411,6 +4718,195 @@
           }
         });
       }
+
+      // 21. macOS-Inspired MagnificationDock with Spring Physics
+      (function initMagnificationDock() {
+        const dockContainer = document.getElementById('magnification-dock-container');
+        const dockPanel = document.getElementById('magnification-dock');
+        if (!dockPanel) return;
+
+        const dockItems = Array.from(dockPanel.querySelectorAll('.dock-item'));
+        if (!dockItems.length) return;
+
+        // Ensure newly injected icons render
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons();
+        }
+
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        let baseSize = window.innerWidth <= 640 ? 34 : 44;
+        let maxMagnification = window.innerWidth <= 640 ? 46 : 68;
+        let interactionDistance = window.innerWidth <= 640 ? 110 : 160;
+
+        window.addEventListener('resize', function () {
+          baseSize = window.innerWidth <= 640 ? 34 : 44;
+          maxMagnification = window.innerWidth <= 640 ? 46 : 68;
+          interactionDistance = window.innerWidth <= 640 ? 110 : 160;
+        }, { passive: true });
+
+        // Item states for spring physics simulation: { mass: 0.1, stiffness: 150, damping: 12 }
+        const itemStates = dockItems.map(function (item) {
+          return {
+            el: item,
+            box: item.querySelector('.dock-icon-box'),
+            icon: item.querySelector('.dock-icon'),
+            currentSize: baseSize,
+            targetSize: baseSize,
+            currentY: 0,
+            targetY: 0,
+            velocitySize: 0,
+            velocityY: 0
+          };
+        });
+
+        let isHovered = false;
+        let mouseX = -9999;
+        let animFrameId = null;
+
+        const springSpeed = 22;
+
+        function updateSpringPhysics(dt) {
+          let active = false;
+          const alpha = 1 - Math.exp(-springSpeed * Math.min(0.05, dt));
+
+          itemStates.forEach(function (state) {
+            state.currentSize += (state.targetSize - state.currentSize) * alpha;
+            state.currentY += (state.targetY - state.currentY) * alpha;
+
+            const isSettled =
+              Math.abs(state.targetSize - state.currentSize) < 0.08 &&
+              Math.abs(state.targetY - state.currentY) < 0.08;
+
+            if (!isSettled) {
+              active = true;
+            } else {
+              state.currentSize = state.targetSize;
+              state.currentY = state.targetY;
+            }
+
+            state.el.style.width = state.currentSize.toFixed(1) + 'px';
+            state.el.style.height = state.currentSize.toFixed(1) + 'px';
+            state.el.style.transform = 'translateY(' + state.currentY.toFixed(1) + 'px)';
+            if (state.icon) {
+              const scale = state.currentSize / baseSize;
+              state.icon.style.transform = 'scale(' + Math.min(1.4, Math.max(0.85, scale)).toFixed(3) + ')';
+            }
+          });
+
+          return active;
+        }
+
+        let lastTime = performance.now();
+        function animationLoop(now) {
+          const dt = Math.min(0.032, (now - lastTime) / 1000);
+          lastTime = now;
+
+          if (isHovered && mouseX > -1000) {
+            itemStates.forEach(function (state) {
+              const rect = state.el.getBoundingClientRect();
+              const itemCenterX = rect.left + rect.width / 2;
+              const dx = mouseX - itemCenterX;
+
+              if (Math.abs(dx) < interactionDistance) {
+                const cosFactor = Math.cos((dx / interactionDistance) * (Math.PI / 2));
+                const factor = Math.max(0, cosFactor);
+                state.targetSize = baseSize + (maxMagnification - baseSize) * factor;
+                state.targetY = -((maxMagnification - baseSize) * factor * 0.42);
+              } else {
+                state.targetSize = baseSize;
+                state.targetY = 0;
+              }
+            });
+          } else {
+            itemStates.forEach(function (state) {
+              state.targetSize = baseSize;
+              state.targetY = 0;
+            });
+          }
+
+          const needsNextFrame = updateSpringPhysics(dt || 0.016);
+          if (needsNextFrame || isHovered) {
+            animFrameId = requestAnimationFrame(animationLoop);
+          } else {
+            animFrameId = null;
+          }
+        }
+
+        function startAnimation() {
+          if (!animFrameId) {
+            lastTime = performance.now();
+            animFrameId = requestAnimationFrame(animationLoop);
+          }
+        }
+
+        if (!isTouchDevice) {
+          dockPanel.addEventListener('mouseenter', function (e) {
+            isHovered = true;
+            mouseX = e.clientX;
+            startAnimation();
+          });
+
+          dockPanel.addEventListener('mousemove', function (e) {
+            isHovered = true;
+            mouseX = e.clientX;
+            startAnimation();
+          });
+
+          dockPanel.addEventListener('mouseleave', function () {
+            isHovered = false;
+            mouseX = -9999;
+            startAnimation();
+          });
+        }
+
+        // Action Handlers
+        const dockCmdBtn = document.getElementById('dock-cmd-btn');
+        if (dockCmdBtn) {
+          dockCmdBtn.addEventListener('click', function () {
+            if (typeof openCmd === 'function') openCmd();
+          });
+        }
+
+        const dockThemeBtn = document.getElementById('dock-theme-btn');
+        if (dockThemeBtn) {
+          dockThemeBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (themePopover) {
+              const isOpen = themePopover.classList.toggle('open');
+              if (themeToggleBtn) themeToggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            }
+          });
+        }
+
+        const dockAiBtn = document.getElementById('dock-ai-btn');
+        if (dockAiBtn) {
+          dockAiBtn.addEventListener('click', function () {
+            if (typeof openAiModal === 'function') openAiModal();
+          });
+        }
+
+        // Smooth scroll for dock anchor links
+        dockItems.forEach(function (item) {
+          if (item.tagName === 'A') {
+            const href = item.getAttribute('href');
+            if (href && href.startsWith('#')) {
+              item.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = href.substring(1);
+                if (targetId === 'home') {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                  const targetEl = document.getElementById(targetId);
+                  if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }
+              });
+            }
+          }
+        });
+      })();
     })();
   </script>
 </body>
