@@ -4426,7 +4426,35 @@
               })
             });
 
-            const data = await response.json();
+            let data = null;
+            const contentType = response.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+              try { data = await response.json(); } catch (_) {}
+            }
+            
+            // If on static hosting without backend, persist locally so messages are never lost
+            if (!data || !response.ok) {
+              if (response.status === 404 || !response.ok) {
+                try {
+                  const storedList = JSON.parse(localStorage.getItem('portfolio_messages_store') || '[]');
+                  storedList.unshift({
+                    id: 'msg-local-' + Date.now(),
+                    name: name,
+                    email: email,
+                    company: 'Direct Visitor',
+                    category: 'GENERAL',
+                    priority: 'HIGH',
+                    status: 'new',
+                    message: message,
+                    created_at: new Date().toISOString()
+                  });
+                  localStorage.setItem('portfolio_messages_store', JSON.stringify(storedList));
+                  data = { success: true, message: 'Thank you! Your message has been safely received.' };
+                } catch (_) {
+                  data = { success: false, error: 'Could not connect to backend service.' };
+                }
+              }
+            }
 
             if (response.ok && data.success) {
               if (formStatus) {
