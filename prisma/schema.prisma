@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Enquiry {
+  id             String            @id @default(uuid())
+  name           String
+  email          String
+  message        String
+  category       String            @default("GENERAL") // GENERAL, HIRING, PROJECT, COLLABORATION
+  priority       String            @default("MEDIUM")  // LOW, MEDIUM, HIGH, URGENT
+  status         String            @default("NEW")     // NEW, IN_REVIEW, READ, REPLIED, ARCHIVED
+  ipAddress      String?
+  userAgent      String?
+  idempotencyKey String?           @unique
+  replyNotes     String?
+  repliedAt      DateTime?
+  metadata       Json?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  notificationJobs NotificationJob[]
+  auditLogs        AuditLog[]
+
+  @@index([status])
+  @@index([category])
+  @@index([priority])
+  @@index([createdAt])
+  @@map("enquiries")
+}
+
+model NotificationJob {
+  id          String   @id @default(uuid())
+  enquiryId   String
+  enquiry     Enquiry  @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  jobType     String   // EMAIL_NOTIFICATION, VISITOR_REPLY, WEBHOOK
+  status      String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED, RETRYING
+  attempts    Int      @default(0)
+  maxAttempts Int      @default(5)
+  lastError   String?
+  payload     Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([enquiryId])
+  @@map("notification_jobs")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String   // ENQUIRY_CREATED, STATUS_UPDATED, PRIORITY_UPDATED, REPLY_SENT, ENQUIRY_DELETED, JOB_RETRIED
+  actorEmail String?
+  actorIp    String?
+  enquiryId  String?
+  enquiry    Enquiry? @relation(fields: [enquiryId], references: [id], onDelete: SetNull)
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model AdminUser {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  role         String    @default("ADMIN") // ADMIN, AUDITOR, VIEWER
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("admin_users")
+}

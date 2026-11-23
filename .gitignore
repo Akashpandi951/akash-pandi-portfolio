@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Build outputs
+# dist/ is kept if you want to deploy directly, or gitignored. Usually dist/ can be included or built via CI/CD.
+# We will include dist/ so platforms can run node dist/server.js directly without building if needed, but exclude logs.
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pino-*.log
+
+# OS Metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor files
+.vscode/
+.idea/
+.agent/
+.playwright-mcp/
+*.swp
+*.swo
+
+# Temporary scratch & database files
+*.sqlite
+*.sqlite3
+*.db
