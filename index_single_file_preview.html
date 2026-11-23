@@ -492,6 +492,92 @@
       }
     }
 
+    /* =========================================================================
+       AWWWARDS-GRADE "EXPLODED VIEW" ASSEMBLY SYSTEM
+       Scroll-driven 3D product mockup deconstruction, floating layers & re-assembly
+       ========================================================================= */
+    .exploded-track {
+      position: relative;
+      height: 280vh;
+    }
+
+    .exploded-sticky {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 15;
+    }
+
+    .exploded-stage {
+      position: relative;
+      perspective: 1200px;
+      perspective-origin: center center;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .exploded-card {
+      position: absolute;
+      transform-style: preserve-3d;
+      will-change: transform, opacity, box-shadow, border-color;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      background: linear-gradient(165deg, rgba(20, 18, 29, 0.98), rgba(9, 9, 15, 0.99)) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.9);
+      transition: border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .exploded-card.core-hub {
+      position: relative;
+      z-index: 20;
+    }
+
+    .exploded-card.locked-state {
+      border-color: rgba(16, 185, 129, 0.5) !important;
+      box-shadow: 0 20px 50px -10px rgba(16, 185, 129, 0.25), 0 0 25px rgba(16, 185, 129, 0.15) !important;
+    }
+
+    .phase-btn.active {
+      background: rgba(255, 23, 68, 0.22) !important;
+      border-color: rgba(255, 23, 68, 0.6) !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 0 14px rgba(255, 23, 68, 0.3);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .exploded-track {
+        height: auto !important;
+      }
+      .exploded-sticky {
+        position: relative !important;
+        height: auto !important;
+        padding-top: 5rem !important;
+        padding-bottom: 5rem !important;
+      }
+      .exploded-stage {
+        height: auto !important;
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+        gap: 1.5rem !important;
+        perspective: none !important;
+      }
+      .exploded-card {
+        position: relative !important;
+        transform: none !important;
+        width: 100% !important;
+      }
+      .exploded-conduits {
+        display: none !important;
+      }
+    }
+
     /* Apple-Style Frosted Floating Navbar */
     .nav-glass {
       background: rgba(10, 10, 16, 0.72);
@@ -1592,7 +1678,171 @@
       </div>
     </section>
 
-    <!-- 4. ABOUT ME — APPLE IPHONE BENTO GRID ARCHITECTURE -->
+    <!-- 4. THE EXPLODED VIEW ASSEMBLY (Scroll-Driven Product Deconstruction & Re-Alignment) -->
+    <section id="architecture" class="exploded-track relative">
+      <div class="exploded-sticky sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between py-6 sm:py-8 px-4 sm:px-6 pointer-events-none">
+
+        <!-- Header Info HUD -->
+        <div class="relative z-20 max-w-4xl mx-auto text-center pointer-events-auto">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-crimson/10 border border-crimson/35 text-[11px] font-bold tracking-[0.2em] uppercase text-crimson mb-2 shadow-sm">
+            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+            <span>Interactive Deconstruction</span>
+            <span class="text-white/20">•</span>
+            <span id="exploded-phase-badge" class="text-white font-mono">PHASE 01: INITIAL CORE</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white uppercase tracking-tight">
+            THE EXPLODED VIEW ASSEMBLY<span class="text-crimson">.</span>
+          </h2>
+          <p class="text-xs sm:text-sm text-muted mt-2 max-w-xl mx-auto leading-relaxed">
+            Scroll down to watch the internal architecture explode into modular 3D layers, then re-converge and lock into a unified production engine.
+          </p>
+
+          <!-- Phase Indicator Pills / Quick Jump -->
+          <div class="mt-4 flex items-center justify-center gap-2 text-[10px] font-mono">
+            <button type="button" class="phase-btn active px-3 py-1 rounded-full bg-crimson/20 border border-crimson/50 text-white transition-all cursor-pointer" data-phase="0">
+              01 Consolidated Core
+            </button>
+            <button type="button" class="phase-btn px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-muted hover:text-white transition-all cursor-pointer" data-phase="1">
+              02 Exploded View
+            </button>
+            <button type="button" class="phase-btn px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-muted hover:text-white transition-all cursor-pointer" data-phase="2">
+              03 Locked Production
+            </button>
+          </div>
+        </div>
+
+        <!-- 3D Explosion Stage -->
+        <div class="exploded-stage relative my-auto w-full max-w-5xl mx-auto flex items-center justify-center pointer-events-auto" style="height: 480px;">
+
+          <!-- Central Connecting SVG Conduit Network (Illuminates during assembly) -->
+          <svg class="exploded-conduits absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-700" viewBox="0 0 1000 480" fill="none" style="opacity: 0.25;">
+            <path id="conduit-tl" d="M 500 240 L 260 130" stroke="url(#conduit-grad-crimson)" stroke-width="2" stroke-dasharray="6 4"></path>
+            <path id="conduit-tr" d="M 500 240 L 740 130" stroke="url(#conduit-grad-crimson)" stroke-width="2" stroke-dasharray="6 4"></path>
+            <path id="conduit-bl" d="M 500 240 L 260 350" stroke="url(#conduit-grad-crimson)" stroke-width="2" stroke-dasharray="6 4"></path>
+            <path id="conduit-br" d="M 500 240 L 740 350" stroke="url(#conduit-grad-crimson)" stroke-width="2" stroke-dasharray="6 4"></path>
+            <defs>
+              <linearGradient id="conduit-grad-crimson" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF1744" stop-opacity="0.9"></stop>
+                <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0.3"></stop>
+              </linearGradient>
+            </defs>
+          </svg>
+
+          <!-- The Floating Modular Subsystems (The Exploding Layers) -->
+
+          <!-- LAYER 0: Core Engine (Central Database & State Hub) -->
+          <div class="exploded-card core-hub bento-card rounded-2xl p-5 sm:p-6 w-[270px] sm:w-[310px] text-center border border-crimson/50 shadow-2xl relative z-20" data-layer="center">
+            <div class="w-10 h-10 mx-auto rounded-xl bg-crimson/20 border border-crimson/50 flex items-center justify-center text-crimson mb-2.5 shadow-lg">
+              <i data-lucide="database" class="w-5 h-5"></i>
+            </div>
+            <div class="text-[10px] font-mono uppercase tracking-[0.2em] text-crimson font-bold">Foundation Hub</div>
+            <h4 class="font-display text-base sm:text-lg font-bold text-white uppercase mt-0.5">PostgreSQL &amp; Prisma</h4>
+            <p class="text-xs text-muted mt-1.5 leading-relaxed">
+              Relational persistence, atomic transaction guarantees, and pooled connections.
+            </p>
+            <div class="mt-3 pt-2.5 border-t border-white/[0.08] flex items-center justify-between text-[10px] font-mono text-muted">
+              <span class="text-emerald-400 font-bold">● ACTIVE</span>
+              <span>100% PERSISTENCE</span>
+            </div>
+          </div>
+
+          <!-- LAYER 1: Ingestion Gateway & Security Shield (Explodes Top-Left) -->
+          <div class="exploded-card bento-card rounded-2xl p-4 sm:p-5 w-[230px] sm:w-[270px] border border-white/10 shadow-xl absolute z-15" data-layer="tl">
+            <div class="flex items-center gap-2.5 mb-2">
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <span class="text-[9px] font-mono uppercase tracking-wider text-muted font-bold">Security Gateway</span>
+                <h5 class="text-xs font-bold text-white uppercase">Turnstile &amp; Rate Guard</h5>
+              </div>
+            </div>
+            <p class="text-[11px] text-muted leading-relaxed">
+              Token verification, SHA-256 fingerprint deduplication, and zero-trust sanitization.
+            </p>
+            <div class="mt-2.5 pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-mono text-emerald-400">
+              <span>IP RATE: 5/min</span>
+              <span>IDEMPOTENT</span>
+            </div>
+          </div>
+
+          <!-- LAYER 2: BullMQ Queue Engine & Concurrency Telemetry (Explodes Top-Right) -->
+          <div class="exploded-card bento-card rounded-2xl p-4 sm:p-5 w-[230px] sm:w-[270px] border border-white/10 shadow-xl absolute z-15" data-layer="tr">
+            <div class="flex items-center gap-2.5 mb-2">
+              <div class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                <i data-lucide="cpu" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <span class="text-[9px] font-mono uppercase tracking-wider text-muted font-bold">Queue Concurrency</span>
+                <h5 class="text-xs font-bold text-white uppercase">BullMQ &amp; Redis Bus</h5>
+              </div>
+            </div>
+            <p class="text-[11px] text-muted leading-relaxed">
+              5 parallel async workers, exponential backoff retries, and dead-letter queues.
+            </p>
+            <div class="mt-2.5 pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-mono text-amber-400">
+              <span>WORKERS: 5</span>
+              <span>DLQ ENABLED</span>
+            </div>
+          </div>
+
+          <!-- LAYER 3: Model Context Protocol (MCP) Server (Explodes Bottom-Left) -->
+          <div class="exploded-card bento-card rounded-2xl p-4 sm:p-5 w-[230px] sm:w-[270px] border border-white/10 shadow-xl absolute z-15" data-layer="bl">
+            <div class="flex items-center gap-2.5 mb-2">
+              <div class="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400 shrink-0">
+                <i data-lucide="terminal" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <span class="text-[9px] font-mono uppercase tracking-wider text-muted font-bold">Agent Protocol</span>
+                <h5 class="text-xs font-bold text-white uppercase">MCP Server (8 Tools)</h5>
+              </div>
+            </div>
+            <p class="text-[11px] text-muted leading-relaxed">
+              Enquiry retrieval, live status updates, telemetry queries, and background job retries.
+            </p>
+            <div class="mt-2.5 pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-mono text-sky-400">
+              <span>TOOLS: 8</span>
+              <span>STDIO READY</span>
+            </div>
+          </div>
+
+          <!-- LAYER 4: Neural AI Prompt & Analytics Engine (Explodes Bottom-Right) -->
+          <div class="exploded-card bento-card rounded-2xl p-4 sm:p-5 w-[230px] sm:w-[270px] border border-white/10 shadow-xl absolute z-15" data-layer="br">
+            <div class="flex items-center gap-2.5 mb-2">
+              <div class="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 shrink-0">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <span class="text-[9px] font-mono uppercase tracking-wider text-muted font-bold">Intelligence Engine</span>
+                <h5 class="text-xs font-bold text-white uppercase">Gemini AI Auto-Reply</h5>
+              </div>
+            </div>
+            <p class="text-[11px] text-muted leading-relaxed">
+              Automated category classification, priority rating, and context-aware reply drafting.
+            </p>
+            <div class="mt-2.5 pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-mono text-purple-400">
+              <span>LATENCY: &lt;1.2s</span>
+              <span>GEMINI 1.5 PRO</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer Progress Bar HUD -->
+        <div class="relative z-20 max-w-xl mx-auto w-full text-center pointer-events-auto">
+          <div class="flex items-center justify-between text-[10px] font-mono text-muted mb-1.5">
+            <span id="exploded-state-label">Consolidated Product Core</span>
+            <span id="exploded-pct-label">0% Assembly</span>
+          </div>
+          <div class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+            <div id="exploded-progress-bar" class="h-full bg-gradient-to-r from-crimson via-purple-500 to-emerald-400 rounded-full transition-all duration-150" style="width: 0%;"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 5. ABOUT ME — APPLE IPHONE BENTO GRID ARCHITECTURE -->
     <section id="about" class="py-20 sm:py-28 px-4 sm:px-6">
       <div class="max-w-6xl mx-auto">
         <div class="reveal text-center mb-14">
@@ -2205,6 +2455,10 @@
           <span class="flex items-center gap-2.5"><i data-lucide="layers" class="w-4 h-4 text-crimson"></i>Projects &amp; Achievements</span>
           <span class="text-[11px] text-muted">Section</span>
         </button>
+        <button type="button" class="cmd-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm text-white hover:bg-crimson/15 transition-colors" data-action="scroll" data-target="#architecture">
+          <span class="flex items-center gap-2.5"><i data-lucide="box" class="w-4 h-4 text-crimson"></i>Exploded View Assembly (Architecture)</span>
+          <span class="text-[11px] text-muted">Interactive 3D</span>
+        </button>
         <button type="button" class="cmd-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm text-white hover:bg-crimson/15 transition-colors" data-action="scroll" data-target="#about">
           <span class="flex items-center gap-2.5"><i data-lucide="user" class="w-4 h-4 text-crimson"></i>About Me (Bento Profile)</span>
           <span class="text-[11px] text-muted">Section</span>
@@ -2403,6 +2657,9 @@
         if (loaderBar) loaderBar.style.width = '100%';
         if (loader) loader.classList.add('hidden-loader');
         document.body.classList.add('is-loaded');
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons();
+        }
       }
       const counterTimer = setInterval(function () {
         count += 12;
@@ -2717,6 +2974,150 @@
       const manifestoSection = document.getElementById('manifesto');
       const manifestoWords = document.querySelectorAll('.manifesto-word');
 
+      // 5b. Awwwards-Grade "The Exploded View" Assembly Engine
+      const explodedTrack = document.getElementById('architecture');
+      const explodedCards = {
+        core: document.querySelector('.exploded-card[data-layer="center"]'),
+        tl: document.querySelector('.exploded-card[data-layer="tl"]'),
+        tr: document.querySelector('.exploded-card[data-layer="tr"]'),
+        bl: document.querySelector('.exploded-card[data-layer="bl"]'),
+        br: document.querySelector('.exploded-card[data-layer="br"]')
+      };
+      const explodedPhaseBadge = document.getElementById('exploded-phase-badge');
+      const explodedStateLabel = document.getElementById('exploded-state-label');
+      const explodedPctLabel = document.getElementById('exploded-pct-label');
+      const explodedProgressBar = document.getElementById('exploded-progress-bar');
+      const explodedConduits = document.querySelector('.exploded-conduits');
+      const phaseBtns = document.querySelectorAll('.phase-btn');
+
+      function updateExplodedAssembly(p) {
+        if (!explodedTrack) return;
+        const progress = Math.max(0, Math.min(1, p));
+        const isMobile = window.innerWidth < 768;
+        const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+        const scaleFactor = isMobile ? Math.min(0.68, window.innerWidth / 480) : (isTablet ? 0.85 : 1.0);
+
+        // Progress HUD updates
+        if (explodedProgressBar) explodedProgressBar.style.width = (progress * 100).toFixed(1) + '%';
+        if (explodedPctLabel) explodedPctLabel.textContent = Math.round(progress * 100) + '% Assembly';
+
+        // Phase 1: Consolidated Core (0.00 to 0.28)
+        // Phase 2: Exploded Outward Deconstruction (0.28 to 0.68)
+        // Phase 3: High-Order Re-Assembly & Lock (0.68 to 1.00)
+        let tExplode = 0;
+        let tLock = 0;
+
+        if (progress < 0.48) {
+          tExplode = Math.max(0, Math.min(1, (progress - 0.05) / 0.38));
+          tLock = 0;
+        } else {
+          tExplode = 1;
+          tLock = Math.max(0, Math.min(1, (progress - 0.52) / 0.42));
+        }
+
+        // Cubic easing
+        const easeExplode = tExplode < 0.5 ? 4 * tExplode * tExplode * tExplode : 1 - Math.pow(-2 * tExplode + 2, 3) / 2;
+        const easeLock = tLock < 0.5 ? 4 * tLock * tLock * tLock : 1 - Math.pow(-2 * tLock + 2, 3) / 2;
+
+        let currentPhase = 0;
+        if (progress < 0.28) {
+          currentPhase = 0;
+          if (explodedPhaseBadge) explodedPhaseBadge.textContent = 'PHASE 01: INITIAL CORE';
+          if (explodedStateLabel) explodedStateLabel.textContent = 'Consolidated Product Core';
+        } else if (progress < 0.70) {
+          currentPhase = 1;
+          if (explodedPhaseBadge) explodedPhaseBadge.textContent = 'PHASE 02: 3D DECONSTRUCTION';
+          if (explodedStateLabel) explodedStateLabel.textContent = '3D Subsystem Exploded Deconstruction';
+        } else {
+          currentPhase = 2;
+          if (explodedPhaseBadge) explodedPhaseBadge.textContent = 'PHASE 03: LOCKED PRODUCTION';
+          if (explodedStateLabel) explodedStateLabel.textContent = 'High-Order Re-Assembly (Synchronized)';
+        }
+
+        phaseBtns.forEach(function (btn) {
+          btn.classList.toggle('active', parseInt(btn.getAttribute('data-phase'), 10) === currentPhase);
+        });
+
+        // Conduits opacity
+        if (explodedConduits) {
+          explodedConduits.style.opacity = (0.2 + easeLock * 0.75).toFixed(2);
+        }
+
+        // 1. Core Hub (Center)
+        if (explodedCards.core) {
+          const coreZ = -60 * easeExplode * (1 - easeLock);
+          const coreRotX = 10 * easeExplode * (1 - easeLock);
+          const coreScale = 1.0 + 0.08 * easeExplode * (1 - easeLock) + 0.04 * easeLock;
+          explodedCards.core.style.transform = `translate3d(0, 0, ${coreZ.toFixed(1)}px) rotateX(${coreRotX.toFixed(1)}deg) scale(${coreScale.toFixed(3)})`;
+          explodedCards.core.classList.toggle('locked-state', easeLock > 0.85);
+        }
+
+        // 2. Top-Left: Ingestion Gateway & Security Shield
+        if (explodedCards.tl) {
+          const tlX = (-18 + (-242 * easeExplode) + (35 * easeLock)) * scaleFactor;
+          const tlY = (-14 + (-131 * easeExplode) + (50 * easeLock)) * scaleFactor;
+          const tlZ = (10 + (70 * easeExplode) + (-80 * easeLock));
+          const tlRotY = (-14 * easeExplode * (1 - easeLock));
+          const tlRotX = (8 * easeExplode * (1 - easeLock));
+          const tlScale = 0.94 + 0.06 * easeExplode;
+          explodedCards.tl.style.transform = `translate3d(${tlX.toFixed(1)}px, ${tlY.toFixed(1)}px, ${tlZ.toFixed(1)}px) rotateY(${tlRotY.toFixed(1)}deg) rotateX(${tlRotX.toFixed(1)}deg) scale(${tlScale.toFixed(3)})`;
+          explodedCards.tl.classList.toggle('locked-state', easeLock > 0.85);
+        }
+
+        // 3. Top-Right: BullMQ Queue Engine & Concurrency Telemetry
+        if (explodedCards.tr) {
+          const trX = (18 + (242 * easeExplode) + (-35 * easeLock)) * scaleFactor;
+          const trY = (-14 + (-131 * easeExplode) + (50 * easeLock)) * scaleFactor;
+          const trZ = (10 + (80 * easeExplode) + (-90 * easeLock));
+          const trRotY = (14 * easeExplode * (1 - easeLock));
+          const trRotX = (8 * easeExplode * (1 - easeLock));
+          const trScale = 0.94 + 0.06 * easeExplode;
+          explodedCards.tr.style.transform = `translate3d(${trX.toFixed(1)}px, ${trY.toFixed(1)}px, ${trZ.toFixed(1)}px) rotateY(${trRotY.toFixed(1)}deg) rotateX(${trRotX.toFixed(1)}deg) scale(${trScale.toFixed(3)})`;
+          explodedCards.tr.classList.toggle('locked-state', easeLock > 0.85);
+        }
+
+        // 4. Bottom-Left: Model Context Protocol (MCP) Server
+        if (explodedCards.bl) {
+          const blX = (-18 + (-242 * easeExplode) + (35 * easeLock)) * scaleFactor;
+          const blY = (14 + (131 * easeExplode) + (-50 * easeLock)) * scaleFactor;
+          const blZ = (10 + (60 * easeExplode) + (-70 * easeLock));
+          const blRotY = (-12 * easeExplode * (1 - easeLock));
+          const blRotX = (-8 * easeExplode * (1 - easeLock));
+          const blScale = 0.94 + 0.06 * easeExplode;
+          explodedCards.bl.style.transform = `translate3d(${blX.toFixed(1)}px, ${blY.toFixed(1)}px, ${blZ.toFixed(1)}px) rotateY(${blRotY.toFixed(1)}deg) rotateX(${blRotX.toFixed(1)}deg) scale(${blScale.toFixed(3)})`;
+          explodedCards.bl.classList.toggle('locked-state', easeLock > 0.85);
+        }
+
+        // 5. Bottom-Right: Neural AI Prompt & Analytics Engine
+        if (explodedCards.br) {
+          const brX = (18 + (242 * easeExplode) + (-35 * easeLock)) * scaleFactor;
+          const brY = (14 + (131 * easeExplode) + (-50 * easeLock)) * scaleFactor;
+          const brZ = (10 + (70 * easeExplode) + (-80 * easeLock));
+          const brRotY = (12 * easeExplode * (1 - easeLock));
+          const brRotX = (-8 * easeExplode * (1 - easeLock));
+          const brScale = 0.94 + 0.06 * easeExplode;
+          explodedCards.br.style.transform = `translate3d(${brX.toFixed(1)}px, ${brY.toFixed(1)}px, ${brZ.toFixed(1)}px) rotateY(${brRotY.toFixed(1)}deg) rotateX(${brRotX.toFixed(1)}deg) scale(${brScale.toFixed(3)})`;
+          explodedCards.br.classList.toggle('locked-state', easeLock > 0.85);
+        }
+      }
+
+      // Phase jump click handlers
+      phaseBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (!explodedTrack) return;
+          const targetPhase = parseInt(btn.getAttribute('data-phase'), 10);
+          const trackTop = explodedTrack.getBoundingClientRect().top + window.scrollY;
+          const totalDist = explodedTrack.offsetHeight - window.innerHeight;
+          let targetProgress = 0.02;
+          if (targetPhase === 1) targetProgress = 0.48;
+          if (targetPhase === 2) targetProgress = 0.92;
+          window.scrollTo({
+            top: trackTop + (totalDist * targetProgress),
+            behavior: 'smooth'
+          });
+        });
+      });
+
       function onScrollEffects() {
         const scrollTop = window.scrollY;
         const docHeight = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -2788,6 +3189,21 @@
             card.style.filter = 'brightness(' + targetBrightness.toFixed(3) + ')';
             card.classList.toggle('card-stacked', overlapProgress > 0.82);
           });
+        }
+
+        // -----------------------------------------------------------------
+        // Awwwards-Grade "The Exploded View" Assembly 3D Scroll Physics
+        // As user scrolls, components explode outwards, then fly back & lock
+        // -----------------------------------------------------------------
+        if (explodedTrack) {
+          const trackRect = explodedTrack.getBoundingClientRect();
+          const vh = window.innerHeight;
+          const totalDist = trackRect.height - vh;
+          if (totalDist > 0) {
+            const scrolledDist = -trackRect.top;
+            const progress = Math.max(0, Math.min(1, scrolledDist / totalDist));
+            updateExplodedAssembly(progress);
+          }
         }
       }
       let scrollTicking = false;
