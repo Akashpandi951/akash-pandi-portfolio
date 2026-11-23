@@ -165,8 +165,10 @@
     [data-perf="eco"] .hero-red-nebula {
       animation: none !important;
     }
-    [data-perf="eco"] #particles-canvas {
+    [data-perf="eco"] #particles-canvas,
+    [data-perf="eco"] #tubes-container {
       opacity: 0 !important;
+      pointer-events: none !important;
     }
 
     /* Theme Studio Popover */
@@ -201,7 +203,7 @@
       background-color: var(--bg-main);
       color: var(--text-primary);
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      overflow-x: hidden;
+      overflow-x: clip;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       transition: background-color 0.4s var(--ease-out-expo), color 0.4s ease;
@@ -341,6 +343,25 @@
       transition: opacity 0.4s ease;
     }
 
+    /* Interactive 3D WebGL Neon Tubes Canvas & Viewport Container */
+    #tubes-container {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #tubes-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
     /* Apple/Linear Hardware-Grade Bento Glass Card with Cursor Spotlight Sheen */
     .bento-card {
       position: relative;
@@ -399,6 +420,76 @@
     .bento-card > * {
       position: relative;
       z-index: 2;
+    }
+
+    /* =========================================================================
+       AWWWARDS / APPLE-GRADE "STACKING CARDS" DECK SYSTEM
+       "Each card stays sticky at top, so the next card slides over like a deck of cards"
+       ========================================================================= */
+    .stacking-cards-deck {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 3.5rem;
+      padding-bottom: 2.5rem;
+    }
+
+    .stack-card {
+      position: -webkit-sticky;
+      position: sticky;
+      /* Precise sticky offset from header: calculates top offset + staggered card tab spacing */
+      top: calc(88px + var(--card-index, 0) * 28px);
+      transform-origin: center top;
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                  filter 0.28s ease,
+                  box-shadow 0.28s ease,
+                  border-color 0.28s ease;
+      will-change: transform, filter;
+      /* Each successive card has higher z-index to naturally slide over previous ones */
+      z-index: calc(12 + var(--card-index, 0));
+      /* Solid premium backdrop so when the next card slides over, the previous card is cleanly covered */
+      background: linear-gradient(165deg, rgba(20, 18, 29, 0.98), rgba(9, 9, 15, 0.99)) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow:
+        0 28px 70px -15px rgba(0, 0, 0, 0.96),
+        0 0 35px rgba(0, 0, 0, 0.8),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    /* Floating subtle bevel edge on top of cards to simulate real physical card thickness */
+    .stack-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), rgba(var(--primary-rgb), 0.65), rgba(255, 255, 255, 0.25), transparent);
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .stack-card.card-stacked {
+      box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.95);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    @media (max-width: 640px) {
+      .stacking-cards-deck {
+        gap: 2.25rem;
+      }
+      .stack-card {
+        top: calc(76px + var(--card-index, 0) * 20px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .stack-card {
+        position: relative !important;
+        top: auto !important;
+        transform: none !important;
+        filter: none !important;
+      }
     }
 
     /* Apple-Style Frosted Floating Navbar */
@@ -1003,7 +1094,7 @@
 
     /* Recruiter-Friendly Print Stylesheet */
     @media print {
-      #page-loader, #particles-canvas, .bokeh-layer, header, #back-to-top, #theme-popover, #cmd-modal, #project-modal, #toast-container, #scroll-progress {
+      #page-loader, #particles-canvas, #tubes-container, .bokeh-layer, header, #back-to-top, #theme-popover, #cmd-modal, #project-modal, #toast-container, #scroll-progress {
         display: none !important;
       }
       body {
@@ -1062,7 +1153,12 @@
     <div class="bokeh-orb w-[480px] h-[480px] bottom-[-10%] left-[25%]" style="background: radial-gradient(circle, rgba(229,9,54,0.26) 0%, rgba(8,8,13,0) 70%); filter: blur(90px); animation-delay: -10s;"></div>
   </div>
 
-  <!-- Interactive Crimson Particle Canvas -->
+  <!-- Interactive 3D WebGL Neon Tubes Canvas & Viewport Container -->
+  <div id="tubes-container" class="fixed inset-0 w-full h-full pointer-events-none z-[1] overflow-hidden" aria-hidden="true">
+    <canvas id="tubes-canvas" aria-hidden="true"></canvas>
+  </div>
+
+  <!-- Interactive Crimson Particle Canvas (2D Fallback & Ambient Sparkles) -->
   <canvas id="particles-canvas" aria-hidden="true"></canvas>
 
   <!-- Ambient Cyber Data-Grid & Tactile Micro-Noise Texture -->
@@ -1168,6 +1264,19 @@
                 <span>CONTACT ME</span>
               </a>
             </div>
+
+            <!-- Interactive 3D WebGL Neon Tubes Micro-Indicator -->
+            <div class="hero-animate hero-delay-4 mt-7 flex items-center justify-center lg:justify-start">
+              <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-[11px] text-muted shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-crimson animate-pulse"></span>
+                <span>Interactive 3D Tubes Active</span>
+                <span class="text-white/20">•</span>
+                <button id="hero-randomize-tubes" type="button" class="text-white hover:text-crimson font-medium underline underline-offset-2 transition-colors cursor-pointer">
+                  Randomize Colors
+                </button>
+                <kbd class="hidden sm:inline px-1.5 py-0.5 rounded bg-obsidian/90 border border-white/15 text-[9px] font-mono text-muted">[T]</kbd>
+              </div>
+            </div>
           </div>
 
           <!-- Hero Right: Seamless Integrated Original Portrait -->
@@ -1216,75 +1325,270 @@
       </div>
     </section>
 
-    <!-- 3. PROJECTS & ACHIEVEMENTS SECTION (Apple Showcase Card + Expandable Spec Sheet) -->
-    <section id="projects" class="py-20 sm:py-28 px-4 sm:px-6">
+    <!-- 3. PROJECTS & ACHIEVEMENTS SECTION (Interactive Stacking Cards Deck) -->
+    <section id="projects" class="py-20 sm:py-28 px-4 sm:px-6 relative">
       <div class="max-w-6xl mx-auto">
-        <div class="reveal text-center mb-14">
+        <div class="reveal text-center mb-14 sm:mb-16">
           <span class="ref-kicker">Featured Work</span>
           <h2 class="ref-heading text-4xl sm:text-5xl md:text-6xl mt-2">
             PROJECTS &amp; ACHIEVEMENTS<span class="ref-dot">.</span>
           </h2>
+          <p class="text-xs sm:text-sm text-muted mt-3 max-w-lg mx-auto leading-relaxed">
+            Scroll through the showcase deck — each milestone stays pinned as the next innovation stacks cleanly over it.
+          </p>
         </div>
 
-        <article class="reveal-3d bento-card tilt-card rounded-[28px] grid grid-cols-1 lg:grid-cols-12">
-          <!-- Project Preview Image -->
-          <div class="lg:col-span-6 relative min-h-[260px] sm:min-h-[340px] bg-obsidian overflow-hidden group">
-            <img
-              src="assets/project_preview.jpg"
-              alt="AI-assisted website and application development interface mockup"
-              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/20 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-obsidian/20 lg:to-surface/95"></div>
-            <div class="absolute top-5 left-5 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-obsidian/85 backdrop-blur-md border border-crimson/50 text-[11px] font-bold tracking-[0.16em] uppercase text-white">
-              <span class="text-crimson">01</span>
-              <span class="text-white/30">|</span>
-              <span>Featured Project</span>
-            </div>
-          </div>
+        <!-- The Stacking Cards Deck Container -->
+        <div class="stacking-cards-deck relative">
 
-          <!-- Project Details -->
-          <div class="lg:col-span-6 p-7 sm:p-9 lg:p-11 flex flex-col justify-between">
-            <div>
-              <div class="text-xs font-semibold tracking-[0.18em] uppercase text-crimson mb-2">AI-Assisted Development</div>
-              <h3 class="font-display text-2xl sm:text-3xl font-bold text-white leading-tight uppercase">
-                AI TOOLS – WEBSITE AND APPLICATION DEVELOPMENT
-              </h3>
-
-              <p class="mt-4 text-sm sm:text-base text-muted leading-relaxed">
-                Exploring AI-assisted website and application development using AI tools and structured prompt engineering techniques.
-              </p>
-
-              <div class="mt-6 space-y-3">
-                <div class="flex items-start gap-3 text-sm text-white/90">
-                  <span class="w-5 h-5 rounded-md bg-crimson/15 border border-crimson/45 flex items-center justify-center text-crimson shrink-0 mt-0.5">
-                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                  </span>
-                  <span>Built responsive websites using AI tools and structured prompt engineering techniques.</span>
-                </div>
-                <div class="flex items-start gap-3 text-sm text-white/90">
-                  <span class="w-5 h-5 rounded-md bg-crimson/15 border border-crimson/45 flex items-center justify-center text-crimson shrink-0 mt-0.5">
-                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                  </span>
-                  <span>Developed web applications with the assistance of AI tools.</span>
-                </div>
+          <!-- CARD 01: AI Tools — Website & Application Development -->
+          <article class="stack-card bento-card rounded-[28px] grid grid-cols-1 lg:grid-cols-12 overflow-hidden" style="--card-index: 0;">
+            <!-- Card Visual Stage -->
+            <div class="lg:col-span-6 relative min-h-[260px] sm:min-h-[340px] bg-obsidian overflow-hidden group">
+              <img
+                src="assets/project_preview.jpg"
+                alt="AI-assisted website and application development interface mockup"
+                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/20 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-obsidian/20 lg:to-surface/95"></div>
+              <div class="absolute top-5 left-5 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-obsidian/85 backdrop-blur-md border border-crimson/50 text-[11px] font-bold tracking-[0.16em] uppercase text-white shadow-lg">
+                <span class="text-crimson font-display">01</span>
+                <span class="text-white/30">|</span>
+                <span>AI Development</span>
               </div>
             </div>
 
-            <div class="mt-8 pt-5 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-4">
-              <div class="flex flex-wrap gap-2">
-                <span class="px-3 py-1.5 rounded-lg bg-crimson/15 border border-crimson/40 text-xs font-semibold text-white">AI Tools</span>
-                <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-xs font-medium text-muted">Prompt Engineering</span>
-                <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-xs font-medium text-muted">Web Apps</span>
+            <!-- Card Details -->
+            <div class="lg:col-span-6 p-7 sm:p-9 lg:p-11 flex flex-col justify-between">
+              <div>
+                <div class="text-xs font-semibold tracking-[0.18em] uppercase text-crimson mb-2">AI-Assisted Development</div>
+                <h3 class="font-display text-2xl sm:text-3xl font-bold text-white leading-tight uppercase">
+                  AI TOOLS – WEBSITE AND APPLICATION DEVELOPMENT
+                </h3>
+
+                <p class="mt-4 text-sm sm:text-base text-muted leading-relaxed">
+                  Exploring AI-assisted website and application development using AI tools and structured prompt engineering techniques.
+                </p>
+
+                <div class="mt-6 space-y-3">
+                  <div class="flex items-start gap-3 text-sm text-white/90">
+                    <span class="w-5 h-5 rounded-md bg-crimson/15 border border-crimson/45 flex items-center justify-center text-crimson shrink-0 mt-0.5">
+                      <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    </span>
+                    <span>Built responsive websites using AI tools and structured prompt engineering techniques.</span>
+                  </div>
+                  <div class="flex items-start gap-3 text-sm text-white/90">
+                    <span class="w-5 h-5 rounded-md bg-crimson/15 border border-crimson/45 flex items-center justify-center text-crimson shrink-0 mt-0.5">
+                      <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    </span>
+                    <span>Developed web applications with the assistance of AI tools.</span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Apple-Style "+" Expand Detail Sheet Button -->
-              <button id="open-project-modal" type="button" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] hover:bg-crimson border border-white/15 hover:border-crimson text-xs font-semibold tracking-wider uppercase text-white transition-all">
-                <span>Closer Look</span>
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-              </button>
+              <div class="mt-8 pt-5 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-4">
+                <div class="flex flex-wrap gap-2">
+                  <span class="px-3 py-1.5 rounded-lg bg-crimson/15 border border-crimson/40 text-xs font-semibold text-white">AI Tools</span>
+                  <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-xs font-medium text-muted">Prompt Engineering</span>
+                  <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-xs font-medium text-muted">Web Apps</span>
+                </div>
+
+                <button type="button" class="open-project-modal-btn inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] hover:bg-crimson border border-white/15 hover:border-crimson text-xs font-semibold tracking-wider uppercase text-white transition-all shadow-sm" data-project-id="ai-tools">
+                  <span>Closer Look</span>
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
             </div>
-          </div>
-        </article>
+          </article>
+
+          <!-- CARD 02: Enterprise Backend & MCP Automation System -->
+          <article class="stack-card bento-card rounded-[28px] grid grid-cols-1 lg:grid-cols-12 overflow-hidden" style="--card-index: 1;">
+            <!-- Card Visual Stage -->
+            <div class="lg:col-span-6 relative min-h-[260px] sm:min-h-[340px] bg-obsidian p-6 sm:p-8 flex flex-col justify-between overflow-hidden border-b lg:border-b-0 lg:border-r border-white/[0.08]">
+              <!-- Cyber Deck Header -->
+              <div class="flex items-center justify-between">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-obsidian/85 backdrop-blur-md border border-crimson/50 text-[11px] font-bold tracking-[0.16em] uppercase text-white shadow-lg">
+                  <span class="text-crimson font-display">02</span>
+                  <span class="text-white/30">|</span>
+                  <span>Backend &amp; MCP</span>
+                </div>
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-[10px] font-bold text-emerald-400 font-mono">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  BULLMQ ACTIVE
+                </div>
+              </div>
+
+              <!-- Interactive Architecture Visual -->
+              <div class="my-auto py-6 space-y-3.5">
+                <div class="p-3.5 rounded-xl bg-surface/80 border border-white/10 shadow-lg">
+                  <div class="flex items-center justify-between text-xs mb-2">
+                    <span class="font-mono text-muted uppercase font-bold text-[10px] tracking-wider">Queue Worker Concurrency</span>
+                    <span class="font-mono text-white font-bold text-[11px]">5 Parallel Workers</span>
+                  </div>
+                  <div class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-crimson to-amber-500 rounded-full" style="width: 85%;"></div>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="p-3 rounded-xl bg-surface/80 border border-white/10">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-muted">MCP Protocol</div>
+                    <div class="font-mono text-sm font-bold text-white mt-0.5">8 Live Tools</div>
+                  </div>
+                  <div class="p-3 rounded-xl bg-surface/80 border border-white/10">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-muted">Idempotency</div>
+                    <div class="font-mono text-sm font-bold text-emerald-400 mt-0.5">SHA-256 Guard</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tech Trace Footnote -->
+              <div class="flex items-center justify-between text-[11px] text-muted font-mono pt-3 border-t border-white/[0.08]">
+                <span>Prisma PostgreSQL</span>
+                <span>•</span>
+                <span>Redis Telemetry</span>
+                <span>•</span>
+                <span>Resend API</span>
+              </div>
+            </div>
+
+            <!-- Card Details -->
+            <div class="lg:col-span-6 p-7 sm:p-9 lg:p-11 flex flex-col justify-between">
+              <div>
+                <div class="text-xs font-semibold tracking-[0.18em] uppercase text-crimson mb-2">Full-Stack Architecture</div>
+                <h3 class="font-display text-2xl sm:text-3xl font-bold text-white leading-tight uppercase">
+                  ENTERPRISE BACKEND &amp; MCP AUTOMATION SYSTEM
+                </h3>
+
+                <p class="mt-4 text-sm sm:text-base text-muted leading-relaxed">
+                  High-concurrency backend automation engine powered by TypeScript, Prisma PostgreSQL, BullMQ worker queues, and an official Model Context Protocol (MCP) server.
+                </p>
+
+                <div class="mt-6 space-y-3">
+                  <div class="flex items-start gap-3 text-sm text-white/90">
+                    <span class="w-5 h-5 rounded-md bg-crimson/15 border border-crimson/45 flex items-center justify-center text-crimson shrink-0 mt-0.5">
+                      <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    </span>
+                    <span>Engineered idempotent concurrent request deduplication with exponential backoff and Dead-Letter Queue (DLQ).</span>
+                  </div>
+                  <div class="flex items-start gap-3 text-sm text-white/90">
+                    <span class="w-5 h-5 rounded-md bg-crimson/15 border border-crimson/45 flex items-center justify-center text-crimson shrink-0 mt-0.5">
+                      <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    </span>
+                    <span>Built authenticated Admin Command Center with live queue monitoring, immutable audit logging, and Gemini AI reply drafting.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-8 pt-5 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-4">
+                <div class="flex flex-wrap gap-2">
+                  <span class="px-3 py-1.5 rounded-lg bg-crimson/15 border border-crimson/40 text-xs font-semibold text-white">TypeScript</span>
+                  <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-xs font-medium text-muted">Prisma ORM</span>
+                  <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-xs font-medium text-muted">BullMQ &amp; Redis</span>
+                  <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-xs font-medium text-muted">MCP Server</span>
+                </div>
+
+                <button type="button" class="open-project-modal-btn inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] hover:bg-crimson border border-white/15 hover:border-crimson text-xs font-semibold tracking-wider uppercase text-white transition-all shadow-sm" data-project-id="backend-mcp">
+                  <span>Closer Look</span>
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- CARD 03: Data Analytics & SQL Intelligence Foundation -->
+          <article class="stack-card bento-card rounded-[28px] grid grid-cols-1 lg:grid-cols-12 overflow-hidden" style="--card-index: 2;">
+            <!-- Card Visual Stage -->
+            <div class="lg:col-span-6 relative min-h-[260px] sm:min-h-[340px] bg-obsidian p-6 sm:p-8 flex flex-col justify-between overflow-hidden border-b lg:border-b-0 lg:border-r border-white/[0.08]">
+              <!-- Header -->
+              <div class="flex items-center justify-between">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-obsidian/85 backdrop-blur-md border border-crimson/50 text-[11px] font-bold tracking-[0.16em] uppercase text-white shadow-lg">
+                  <span class="text-crimson font-display">03</span>
+                  <span class="text-white/30">|</span>
+                  <span>Data &amp; SQL</span>
+                </div>
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-500/15 border border-sky-500/35 text-[10px] font-bold text-sky-400 font-mono">
+                  <i data-lucide="database" class="w-3 h-3"></i>
+                  <span>ANALYTICS ENGINE</span>
+                </div>
+              </div>
+
+              <!-- SQL Query & Metric Preview -->
+              <div class="my-auto py-5 space-y-3">
+                <div class="p-3.5 rounded-xl bg-obsidian border border-white/10 font-mono text-[11px] text-white/90 shadow-inner">
+                  <div class="text-muted text-[10px] uppercase font-bold tracking-wider mb-1">SQL Query Execution</div>
+                  <span class="text-crimson font-bold">SELECT</span> category, <span class="text-sky-400">COUNT</span>(*) <span class="text-crimson font-bold">AS</span> total_records,<br/>
+                  &nbsp;&nbsp;<span class="text-sky-400">SUM</span>(metric_value) <span class="text-crimson font-bold">FROM</span> analytics_store<br/>
+                  &nbsp;&nbsp;<span class="text-crimson font-bold">GROUP BY</span> category <span class="text-crimson font-bold">ORDER BY</span> total_records <span class="text-amber-400 font-bold">DESC</span>;
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="p-3 rounded-xl bg-surface/80 border border-white/10">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-muted">Data Accuracy</div>
+                    <div class="font-mono text-sm font-bold text-white mt-0.5">99.8% Integrity</div>
+                  </div>
+                  <div class="p-3 rounded-xl bg-surface/80 border border-white/10">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-muted">Excel Modeling</div>
+                    <div class="font-mono text-sm font-bold text-sky-400 mt-0.5">Automated KPIs</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tech Trace Footnote -->
+              <div class="flex items-center justify-between text-[11px] text-muted font-mono pt-3 border-t border-white/[0.08]">
+                <span>SQL Querying</span>
+                <span>•</span>
+                <span>Data Normalization</span>
+                <span>•</span>
+                <span>MS Excel Formulas</span>
+              </div>
+            </div>
+
+            <!-- Card Details -->
+            <div class="lg:col-span-6 p-7 sm:p-9 lg:p-11 flex flex-col justify-between">
+              <div>
+                <div class="text-xs font-semibold tracking-[0.18em] uppercase text-crimson mb-2">Data Analytics &amp; Relational Databases</div>
+                <h3 class="font-display text-2xl sm:text-3xl font-bold text-white leading-tight uppercase">
+                  DATA ANALYTICS &amp; SQL INTELLIGENCE FOUNDATION
+                </h3>
+
+                <p class="mt-4 text-sm sm:text-base text-muted leading-relaxed">
+                  End-to-end data processing, exploratory data analysis, and business intelligence reporting combining SQL querying with advanced MS Excel analytical models.
+                </p>
+
+                <div class="mt-6 space-y-3">
+                  <div class="flex items-start gap-3 text-sm text-white/90">
+                    <span class="w-5 h-5 rounded-md bg-crimson/15 border border-crimson/45 flex items-center justify-center text-crimson shrink-0 mt-0.5">
+                      <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    </span>
+                    <span>Designed structured relational queries, aggregates, and data transformations for actionable business insights.</span>
+                  </div>
+                  <div class="flex items-start gap-3 text-sm text-white/90">
+                    <span class="w-5 h-5 rounded-md bg-crimson/15 border border-crimson/45 flex items-center justify-center text-crimson shrink-0 mt-0.5">
+                      <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    </span>
+                    <span>Created automated Excel reporting workbooks with nested logic, lookup formulas, and dynamic visual summaries.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-8 pt-5 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-4">
+                <div class="flex flex-wrap gap-2">
+                  <span class="px-3 py-1.5 rounded-lg bg-crimson/15 border border-crimson/40 text-xs font-semibold text-white">SQL</span>
+                  <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-xs font-medium text-muted">Data Analytics</span>
+                  <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-xs font-medium text-muted">MS Excel</span>
+                  <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-xs font-medium text-muted">BI Insights</span>
+                </div>
+
+                <button type="button" class="open-project-modal-btn inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] hover:bg-crimson border border-white/15 hover:border-crimson text-xs font-semibold tracking-wider uppercase text-white transition-all shadow-sm" data-project-id="data-analytics">
+                  <span>Closer Look</span>
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+          </article>
+
+        </div>
       </div>
     </section>
 
@@ -1839,7 +2143,7 @@
     <div class="modal-panel bento-card rounded-[28px] max-w-2xl w-full p-6 sm:p-8 max-h-[88vh] overflow-y-auto">
       <div class="flex items-start justify-between gap-4 pb-5 border-b border-white/[0.08]">
         <div>
-          <span class="ref-kicker mb-1">Project Architecture</span>
+          <span id="project-modal-kicker" class="ref-kicker mb-1">Project Architecture</span>
           <h3 id="project-modal-title" class="font-display text-xl sm:text-2xl font-bold text-white uppercase">
             AI TOOLS – WEBSITE AND APPLICATION DEVELOPMENT
           </h3>
@@ -1852,17 +2156,18 @@
       <div class="mt-6 space-y-5">
         <div class="rounded-2xl overflow-hidden border border-white/10">
           <img
+            id="project-modal-img"
             src="assets/project_preview.jpg"
             alt="Project interface preview"
             class="w-full h-48 sm:h-56 object-cover"
           />
         </div>
 
-        <p class="text-sm sm:text-base text-white/90 leading-relaxed">
+        <p id="project-modal-desc" class="text-sm sm:text-base text-white/90 leading-relaxed">
           Exploring AI-assisted website and application development using AI tools and structured prompt engineering techniques.
         </p>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div id="project-modal-achievements" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div class="rounded-2xl bg-obsidian/80 border border-white/[0.08] p-4">
             <div class="text-[11px] font-bold uppercase tracking-[0.16em] text-crimson mb-1.5">Achievement 01</div>
             <p class="text-sm text-white/90">Built responsive websites using AI tools and structured prompt engineering techniques.</p>
@@ -1873,7 +2178,7 @@
           </div>
         </div>
 
-        <div class="pt-3 flex flex-wrap gap-2">
+        <div id="project-modal-tags" class="pt-3 flex flex-wrap gap-2">
           <span class="px-3 py-1 rounded-full bg-crimson/15 border border-crimson/40 text-xs font-semibold text-white">AI Tools</span>
           <span class="px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-xs text-muted">Prompt Engineering</span>
           <span class="px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-xs text-muted">Responsive Websites</span>
@@ -1927,6 +2232,14 @@
         <button type="button" class="cmd-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm text-white hover:bg-crimson/15 transition-colors" data-action="copy" data-copy="9791331745" data-label="Phone number">
           <span class="flex items-center gap-2.5"><i data-lucide="phone" class="w-4 h-4 text-crimson"></i>Copy Phone Number</span>
           <span class="text-[11px] text-muted">Action</span>
+        </button>
+        <button type="button" class="cmd-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm text-white hover:bg-crimson/15 transition-colors" data-action="randomize-tubes">
+          <span class="flex items-center gap-2.5"><i data-lucide="sparkles" class="w-4 h-4 text-crimson"></i>Randomize 3D Neon Tubes Colors</span>
+          <kbd class="px-1.5 py-0.5 rounded bg-obsidian text-[10px] font-mono text-muted">T</kbd>
+        </button>
+        <button type="button" class="cmd-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm text-white hover:bg-crimson/15 transition-colors" data-action="toggle-tubes">
+          <span class="flex items-center gap-2.5"><i data-lucide="eye" class="w-4 h-4 text-crimson"></i>Toggle 3D Tubes Canvas</span>
+          <span class="text-[11px] text-muted">3D Scene</span>
         </button>
         <button type="button" class="cmd-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm text-white hover:bg-crimson/15 transition-colors" data-action="toggle-particles">
           <span class="flex items-center gap-2.5"><i data-lucide="sparkles" class="w-4 h-4 text-crimson"></i>Toggle Ambient Particles</span>
@@ -2041,8 +2354,18 @@
 
     <div class="mt-3 pt-3 border-t border-white/[0.08] flex items-center justify-between gap-2">
       <div>
+        <div class="text-xs font-semibold text-white">3D Neon Tubes</div>
+        <div class="text-[10px] text-muted">Click background or press [T]</div>
+      </div>
+      <button id="randomize-tubes-btn" type="button" class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-crimson/20 border border-crimson/50 text-white hover:bg-crimson transition-colors" title="Randomize 3D Neon Tube Colors">
+        Shuffle
+      </button>
+    </div>
+
+    <div class="mt-2.5 pt-2.5 border-t border-white/[0.08] flex items-center justify-between gap-2">
+      <div>
         <div class="text-xs font-semibold text-white">60fps Eco Mode</div>
-        <div class="text-[10px] text-muted">Pause particles &amp; heavy blur</div>
+        <div class="text-[10px] text-muted">Pause particles &amp; 3D tubes</div>
       </div>
       <button id="eco-mode-btn" type="button" class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/[0.07] border border-white/15 text-muted hover:text-white transition-colors" aria-pressed="false">
         Off
@@ -2154,7 +2477,147 @@
         document.body.removeChild(ta);
       }
 
-      // 4. Interactive Crimson Particle Canvas
+      // 4. Interactive 3D WebGL Neon Tubes Cursor Background System (Three.js WebGL / threejs-components)
+      let tubesApp = null;
+      let tubesEnabled = true;
+      const tubesCanvas = document.getElementById('tubes-canvas');
+      const tubesContainer = document.getElementById('tubes-container');
+
+      const themeTubesPaletteMap = {
+        crimson: {
+          tubes: ["#ff1744", "#e11d48", "#8b5cf6"],
+          lights: ["#ff1744", "#f43f5e", "#8b5cf6", "#38bdf8"]
+        },
+        titanium: {
+          tubes: ["#38bdf8", "#0284c7", "#818cf8"],
+          lights: ["#38bdf8", "#0ea5e9", "#6366f1", "#a855f7"]
+        },
+        obsidian: {
+          tubes: ["#8b5cf6", "#7c3aed", "#ec4899"],
+          lights: ["#a855f7", "#6366f1", "#ec4899", "#f43f5e"]
+        },
+        emerald: {
+          tubes: ["#10b981", "#059669", "#06b6d4"],
+          lights: ["#10b981", "#34d399", "#06b6d4", "#3b82f6"]
+        },
+        amber: {
+          tubes: ["#f59e0b", "#d97706", "#ef4444"],
+          lights: ["#f59e0b", "#fbbf24", "#f97316", "#ef4444"]
+        }
+      };
+
+      function getRandomHexColor() {
+        return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+      }
+
+      function getRandomColorsArray(count) {
+        return new Array(count).fill(0).map(getRandomHexColor);
+      }
+
+      function randomizeTubesColors() {
+        if (!tubesApp || !tubesApp.tubes) return;
+        const colors = getRandomColorsArray(3);
+        const lights = getRandomColorsArray(4);
+        tubesApp.tubes.setColors(colors);
+        tubesApp.tubes.setLightsColors(lights);
+        showToast('3D Neon Tube Colors Randomized', false);
+      }
+
+      function applyThemeToTubes(themeKey) {
+        if (!tubesApp || !tubesApp.tubes) return;
+        const preset = themeTubesPaletteMap[themeKey] || themeTubesPaletteMap.crimson;
+        tubesApp.tubes.setColors(preset.tubes);
+        tubesApp.tubes.setLightsColors(preset.lights);
+      }
+
+      function toggleTubes(enable) {
+        if (typeof enable === 'boolean') {
+          tubesEnabled = enable;
+        } else {
+          tubesEnabled = !tubesEnabled;
+        }
+        if (tubesContainer) {
+          tubesContainer.style.opacity = tubesEnabled ? '1' : '0';
+        }
+        showToast(tubesEnabled ? '3D Neon Tubes Enabled' : '3D Neon Tubes Hidden', false);
+      }
+
+      async function initTubesBackground() {
+        if (!tubesCanvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          return;
+        }
+
+        try {
+          const module = await import('https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js');
+          const TubesCursor = module.default;
+          if (typeof TubesCursor !== 'function') return;
+
+          const currentTheme = document.documentElement.getAttribute('data-theme') || 'crimson';
+          const palette = themeTubesPaletteMap[currentTheme] || themeTubesPaletteMap.crimson;
+
+          tubesApp = TubesCursor(tubesCanvas, {
+            tubes: {
+              colors: palette.tubes,
+              lights: {
+                intensity: 220,
+                colors: palette.lights
+              }
+            }
+          });
+
+          if (tubesContainer && tubesEnabled) {
+            tubesContainer.style.opacity = '1';
+          }
+        } catch (err) {
+          console.warn('3D Tubes WebGL initialization gracefully skipped:', err);
+        }
+      }
+
+      // Initialize 3D Tubes
+      initTubesBackground();
+
+      // Background click randomizer (excluding clickable UI elements)
+      document.addEventListener('click', function (e) {
+        if (e.target.closest('button, a, input, textarea, select, [role="dialog"], #cmd-modal, #project-modal, #theme-popover, #ai-modal, .bento-card, .stack-card, .numbered-row, .stack-tile, nav, header, footer')) {
+          return;
+        }
+        randomizeTubesColors();
+      });
+
+      // Keyboard shortcut [T] to randomize colors
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 't' || e.key === 'T') {
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+            return;
+          }
+          const isModalOpen = (document.getElementById('cmd-modal')?.classList.contains('open') ||
+                               document.getElementById('project-modal')?.classList.contains('open') ||
+                               document.getElementById('ai-modal')?.classList.contains('open'));
+          if (isModalOpen) return;
+          e.preventDefault();
+          randomizeTubesColors();
+        }
+      });
+
+      // Hook up hero randomize button if present
+      const heroRandomizeBtn = document.getElementById('hero-randomize-tubes');
+      if (heroRandomizeBtn) {
+        heroRandomizeBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          randomizeTubesColors();
+        });
+      }
+
+      // Hook up Theme popover shuffle button
+      const themeShuffleBtn = document.getElementById('randomize-tubes-btn');
+      if (themeShuffleBtn) {
+        themeShuffleBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          randomizeTubesColors();
+        });
+      }
+
+      // 5. Interactive Crimson Particle Canvas (2D Fallback & Ambient Sparkles)
       const canvas = document.getElementById('particles-canvas');
       let particlesEnabled = true;
       let tabVisible = true;
@@ -2291,6 +2754,39 @@
             const isAccent = w.getAttribute('data-accent') === 'true';
             w.classList.toggle('lit', isLit && !isAccent);
             w.classList.toggle('lit-accent', isLit && isAccent);
+          });
+        }
+
+        // -----------------------------------------------------------------
+        // Awwwards/Apple-Grade "Stacking Cards" Deck Scroll Physics
+        // As user scrolls, each card stays sticky at top and next card slides over
+        // -----------------------------------------------------------------
+        const stackCards = document.querySelectorAll('.stack-card');
+        if (stackCards.length > 1) {
+          const vh = window.innerHeight;
+          const isMobile = window.innerWidth < 640;
+          stackCards.forEach(function (card, idx) {
+            if (idx === stackCards.length - 1) {
+              card.style.transform = 'scale(1)';
+              card.style.filter = 'brightness(1)';
+              return;
+            }
+            const nextCard = stackCards[idx + 1];
+            if (!nextCard) return;
+
+            const nextRect = nextCard.getBoundingClientRect();
+            const cardStickyTop = (isMobile ? 76 : 88) + idx * (isMobile ? 20 : 28);
+
+            // Progress of the next card sliding directly over this card (0 to 1)
+            const overlapProgress = Math.max(0, Math.min(1, (vh * 0.88 - nextRect.top) / (vh * 0.52)));
+
+            // Smooth scale reduction (1.0 -> 0.94) and subtle depth dimming (1.0 -> 0.80)
+            const targetScale = 1 - (0.045 * overlapProgress);
+            const targetBrightness = 1 - (0.22 * overlapProgress);
+
+            card.style.transform = 'scale(' + targetScale.toFixed(4) + ')';
+            card.style.filter = 'brightness(' + targetBrightness.toFixed(3) + ')';
+            card.classList.toggle('card-stacked', overlapProgress > 0.82);
           });
         }
       }
@@ -2472,18 +2968,112 @@
         });
       });
 
-      // 11. Apple-Style Closer Look Project Modal
+      // 11. Apple-Style Closer Look Project Modal & Multi-Project Stacking Deck Wiring
       const projectModal = document.getElementById('project-modal');
-      const openProjectBtn = document.getElementById('open-project-modal');
       const closeProjectBtn = document.getElementById('close-project-modal');
+      const projectModalKicker = document.getElementById('project-modal-kicker');
+      const projectModalTitle = document.getElementById('project-modal-title');
+      const projectModalImg = document.getElementById('project-modal-img');
+      const projectModalDesc = document.getElementById('project-modal-desc');
+      const projectModalAchievements = document.getElementById('project-modal-achievements');
+      const projectModalTags = document.getElementById('project-modal-tags');
+
+      const projectDataStore = {
+        'ai-tools': {
+          kicker: 'AI-Assisted Development',
+          title: 'AI TOOLS – WEBSITE AND APPLICATION DEVELOPMENT',
+          img: 'assets/project_preview.jpg',
+          desc: 'Exploring AI-assisted website and application development using cutting-edge AI tools and structured prompt engineering techniques. Demonstrates how intelligent agents accelerate modern frontend development, rapid layout prototyping, and responsive UI composition with zero layout shifts.',
+          achievements: [
+            { label: 'Achievement 01', text: 'Built responsive websites using AI tools and structured prompt engineering techniques.' },
+            { label: 'Achievement 02', text: 'Developed web applications with the assistance of AI tools.' },
+            { label: 'Key Innovation', text: 'Established reproducible prompt templates for rapid UI scaffolding and design system tokens.' },
+            { label: 'Quality Standard', text: 'Enforced strict WCAG 2.1 AA accessibility and cross-browser testing across all viewports.' }
+          ],
+          tags: ['AI Tools', 'Prompt Engineering', 'Responsive Websites', 'Web Applications', 'Tailwind CSS', 'Semantic HTML']
+        },
+        'backend-mcp': {
+          kicker: 'Full-Stack Architecture',
+          title: 'ENTERPRISE BACKEND & MCP AUTOMATION SYSTEM',
+          img: 'assets/project_preview.jpg',
+          desc: 'High-concurrency backend automation engine engineered with TypeScript, Prisma PostgreSQL, BullMQ asynchronous worker queues, Redis telemetry, and an official Model Context Protocol (MCP) server for automated AI agent intelligence.',
+          achievements: [
+            { label: 'Concurrency & Dedup', text: 'Engineered idempotent concurrent request deduplication with SHA-256 fingerprinting and Dead-Letter Queue (DLQ).' },
+            { label: 'Admin Command Center', text: 'Built authenticated Admin Dashboard with live BullMQ queue telemetry, audit logging, and automated reply drafting.' },
+            { label: 'MCP Protocol Suite', text: 'Implemented 8 production-grade MCP tools enabling AI agents to search enquiries, inspect metrics, and retry queue jobs.' },
+            { label: 'Zero Data Loss', text: 'Persists visitor inquiries immediately in PostgreSQL before background queue dispatch with automated recovery.' }
+          ],
+          tags: ['TypeScript', 'Prisma ORM', 'PostgreSQL', 'Redis & BullMQ', 'Model Context Protocol', 'JWT Auth', 'Resend API']
+        },
+        'data-analytics': {
+          kicker: 'Data & SQL Intelligence',
+          title: 'DATA ANALYTICS & SQL INTELLIGENCE FOUNDATION',
+          img: 'assets/project_preview.jpg',
+          desc: 'Analytical data pipeline and SQL reporting foundation leveraging structured queries, relational database modeling, and automated KPI metrics extraction for high-integrity business intelligence.',
+          achievements: [
+            { label: 'SQL Optimization', text: 'Architected multi-table analytical queries with GROUP BY aggregations, window functions, and indexed lookups.' },
+            { label: 'Data Integrity', text: 'Enforced 99.8% data accuracy with strict schema validation and normalization standards.' },
+            { label: 'Executive Reporting', text: 'Synthesized raw data streams into automated metric dashboards and actionable executive summaries.' },
+            { label: 'Performance Tuning', text: 'Reduced complex analytical query latency through index tuning and query plan optimization.' }
+          ],
+          tags: ['SQL', 'Relational Databases', 'Data Analytics', 'Aggregation Pipelines', 'Data Modeling', 'Business Intelligence', 'Excel Modeling']
+        }
+      };
+
+      function openProjectDetails(projectId) {
+        const data = projectDataStore[projectId] || projectDataStore['ai-tools'];
+        if (projectModalKicker) projectModalKicker.textContent = data.kicker;
+        if (projectModalTitle) projectModalTitle.textContent = data.title;
+        if (projectModalDesc) projectModalDesc.textContent = data.desc;
+        if (projectModalImg && data.img) {
+          projectModalImg.src = data.img;
+          projectModalImg.alt = data.title;
+        }
+
+        if (projectModalAchievements && data.achievements) {
+          projectModalAchievements.innerHTML = data.achievements.map(function (ach) {
+            return '<div class="rounded-2xl bg-obsidian/80 border border-white/[0.08] p-4">' +
+              '<div class="text-[11px] font-bold uppercase tracking-[0.16em] text-crimson mb-1.5">' + ach.label + '</div>' +
+              '<p class="text-sm text-white/90">' + ach.text + '</p>' +
+            '</div>';
+          }).join('');
+        }
+
+        if (projectModalTags && data.tags) {
+          projectModalTags.innerHTML = data.tags.map(function (tag, idx) {
+            const isFirst = idx === 0;
+            return '<span class="px-3 py-1 rounded-full ' +
+              (isFirst ? 'bg-crimson/15 border border-crimson/40 text-xs font-semibold text-white' : 'bg-white/[0.05] border border-white/10 text-xs text-muted') +
+              '">' + tag + '</span>';
+          }).join('');
+        }
+
+        if (projectModal) {
+          projectModal.classList.add('open');
+          if (window.lucide && typeof lucide.createIcons === 'function') {
+            lucide.createIcons();
+          }
+        }
+      }
+
       function closeProjectModal() {
         if (projectModal) projectModal.classList.remove('open');
       }
-      if (openProjectBtn && projectModal) {
-        openProjectBtn.addEventListener('click', function () {
-          projectModal.classList.add('open');
+
+      document.querySelectorAll('.open-project-modal-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const pid = btn.getAttribute('data-project-id') || 'ai-tools';
+          openProjectDetails(pid);
+        });
+      });
+
+      const legacyOpenBtn = document.getElementById('open-project-modal');
+      if (legacyOpenBtn) {
+        legacyOpenBtn.addEventListener('click', function () {
+          openProjectDetails('ai-tools');
         });
       }
+
       if (closeProjectBtn) {
         closeProjectBtn.addEventListener('click', closeProjectModal);
       }
@@ -2542,6 +3132,10 @@
             if (target) target.scrollIntoView({ behavior: 'smooth' });
           } else if (action === 'copy') {
             copyText(item.getAttribute('data-copy') || '', item.getAttribute('data-label') || 'Text');
+          } else if (action === 'randomize-tubes') {
+            randomizeTubesColors();
+          } else if (action === 'toggle-tubes') {
+            toggleTubes();
           } else if (action === 'toggle-particles') {
             particlesEnabled = !particlesEnabled;
             if (canvas) canvas.style.opacity = particlesEnabled ? '1' : '0';
@@ -2758,6 +3352,7 @@
           const themeKey = btn.getAttribute('data-set-theme') || 'crimson';
           document.documentElement.setAttribute('data-theme', themeKey);
           activeParticleRgb = themeRgbMap[themeKey] || themeRgbMap.crimson;
+          applyThemeToTubes(themeKey);
           themeOpts.forEach(function (b) {
             b.classList.toggle('active', b === btn);
           });
@@ -2771,12 +3366,13 @@
           const nextEco = !isEco;
           document.documentElement.setAttribute('data-perf', nextEco ? 'eco' : 'full');
           particlesEnabled = !nextEco;
+          if (tubesContainer) tubesContainer.style.opacity = nextEco ? '0' : '1';
           ecoModeBtn.textContent = nextEco ? 'On' : 'Off';
           ecoModeBtn.setAttribute('aria-pressed', String(nextEco));
           ecoModeBtn.classList.toggle('bg-crimson/15', nextEco);
           ecoModeBtn.classList.toggle('border-crimson/50', nextEco);
           ecoModeBtn.classList.toggle('text-white', nextEco);
-          showToast(nextEco ? '60fps Eco Mode enabled (blur & particles paused)' : 'Full visual effects restored', false);
+          showToast(nextEco ? '60fps Eco Mode enabled (3D tubes & particles paused)' : 'Full visual effects restored', false);
         });
       }
 
