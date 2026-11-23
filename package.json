@@ -8,6 +8,7 @@
     "start": "tsx src/server.ts",
     "start:prod": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
+    "test": "node tests/test-enterprise-system.js",
     "mcp": "tsx src/mcp/server.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"
